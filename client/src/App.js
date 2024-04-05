@@ -1,25 +1,20 @@
 import logo from './logo.svg';
 import './App.css';
+import {HumanStateForm} from "./Component/HumanStateForm";
+import {ApForm} from "./Component/ApForm";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import {useState} from "react";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+    const [humanState, setHumanState] = useState(null);
+
+    return (
+        <div className="App">
+            <HumanStateForm formUpdateCallback={ (data) => setHumanState(data)}></HumanStateForm>
+            <ApForm></ApForm>
+        </div>
+    );
 }
 
 export default App;
