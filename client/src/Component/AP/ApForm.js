@@ -92,6 +92,7 @@ export class ApForm extends Component {
         for( let i = 0 ; i < this.state.ap.econTurn ; i++ ) {
             components.push(
                 <ApFormRow
+                    key={"turn-id-" + i}
                     ap={this.state.apHistory[i]}
                     launchRow={this.state.launchTable.rows[i]}
                     econRow={this.state.econTable.rows[i]}
@@ -109,6 +110,7 @@ export class ApForm extends Component {
             ap.econTurn = i;
             components.push(
                 <ApFormRow
+                    key={"turn-id-" + i}
                     ap={ap}
                     launchRow={this.state.launchTable.rows[i]}
                     econRow={this.state.econTable.rows[i]}
@@ -150,6 +152,7 @@ export class ApForm extends Component {
                        </td>
                    </tr>
                    <ApFormRow
+                       key={"turn-id-" + this.state.ap.econTurn}
                        ap={this.state.ap}
                        launchRow={this.state.launchTable.rows[this.state.ap.econTurn]}
                        econRow={this.state.econTable.rows[this.state.ap.econTurn]}
