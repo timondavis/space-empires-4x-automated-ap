@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import {HumanStateForm} from "./Component/HumanStateForm";
-import {ApForm} from "./Component/ApForm";
+import {ApForm} from "./Component/AP/ApForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {useState} from "react";
 
