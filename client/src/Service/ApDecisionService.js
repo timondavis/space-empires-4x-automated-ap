@@ -1,4 +1,9 @@
 import {PendingEconAddition} from "../Model/PendingEconAddition";
+import {ApFleet} from "../Model/ApFleet";
+import {ApQuery} from "./ApQuery";
+import {TechRequirement} from "../Model/TechReqiurement";
+import {TechService} from "./TechService";
+import {DieRange} from "../Model/DieRange";
 
 let _instance = null;
 export class ApDecisionService {
@@ -17,6 +22,19 @@ export class ApDecisionService {
 
     d10 = () => {
         return this.nd10(1);
+    }
+
+    adjustedRowIndex = ( index ) => {
+
+        if ( index < 0 ) {
+            index = 0;
+        }
+
+        if ( index > 19 ) {
+            index = ( index % 2 ) ? 18 : 19;
+        }
+
+        return index;
     }
 
     /**
@@ -41,17 +59,8 @@ export class ApDecisionService {
      * @return AP
      */
      rollEcon = ( ap, econRollTable ) => {
-         let econRowIndex = ap.econTurn;
 
-         if ( ap.econTurn < 0 ) {
-             econRowIndex = 0;
-         }
-
-         if ( ap.econTurn > 19 ) {
-             econRowIndex = ( ap.econTurn % 2 ) ? 18 : 19;
-         }
-
-         const econRow = econRollTable.rows[econRowIndex];
+         const econRow = econRollTable.rows[this.adjustedRowIndex(ap.econTurn)];
 
          let numberOfRolls = econRow.econRolls + econRow.extraEcon;
          let econResults = 0;
@@ -83,5 +92,42 @@ export class ApDecisionService {
          ap.defense += defResults   * ap.difficultyIncrement * 2;
 
          return ap;
+    }
+
+    /**
+     * Roll the fleet die for AP and, if necessary, generate fleet.  Checks for move tech upgrade as well.
+     * @param ap : AP
+     * @param fleetLaunchTable : FleetLaunchTable
+     */
+    rollFleet = (ap, fleetLaunchTable) => {
+        debugger;
+        const fleetLaunchRow = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)];
+        const roll = this.d10();
+
+        if ( !fleetLaunchRow?.min ) { return ap; }
+
+        if ( this.isNumberInRange(roll, new DieRange(fleetLaunchRow.min, fleetLaunchRow.max)) && ap.fleet >= 6) {
+
+            const fleet = new ApFleet();
+
+            fleet.cp = ap.fleet;
+            ap.fleet = 0;
+            ap.currentFleets.push(fleet);
+
+            const currentLevel = ApQuery.getInstance().getApTechLevel('move', ap);
+            const newLevel     = currentLevel + 1;
+            const key  = new TechRequirement();
+
+            key.class = 'move';
+            key.level = newLevel;
+            const newLevelDetails = TechService.getInstance().findTech( key );
+
+            if (this.isNumberInRange(this.d10(), new DieRange(1,4)) && newLevel <= 7 && ap.tech >= newLevelDetails.cost) {
+                ApQuery.getInstance().setApTechLevel('move', currentLevel + 1, ap);
+                ap.tech -= newLevelDetails.cost;
+            }
+        }
+
+        return ap;
     }
 }

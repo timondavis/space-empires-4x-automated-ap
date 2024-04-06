@@ -43,28 +43,6 @@ const reducer = (state, action) => {
                     showFuture: true
                 }
             }
-            case 'roll_econ': {
-                const adjustedAp =
-                    ApDecisionService.getInstance().rollEcon( { ...state.ap }, state.econTable );
-                const adjustedEconTable = { ...state.econTable };
-
-                if ( adjustedAp.addEconOnRound.length > 0 ) {
-                    let count = 0;
-                    adjustedAp.addEconOnRound.map((val) => {
-                       for ( let i = val.round ; i < gameLength ; i ++ ) {
-                           adjustedEconTable.rows[i].extraEcon += val.points;
-                       }
-                    })
-
-                    adjustedAp.addEconOnRound = [];
-                }
-
-                return {
-                    ...state,
-                    ap : adjustedAp,
-                    econTable: adjustedEconTable
-                }
-            }
             case 'increment_round':
 
                 history = [ ...state.apHistory ];
@@ -107,7 +85,15 @@ export class ApForm extends Component {
         this.state = initialState;
     }
 
-    dispatch = (action) => {
+    adjustedRowIndex = () => {
+        if ( this.state.ap.econTurn < 20 ) {
+            return this.state.ap.econTurn;
+        }
+
+        return ( this.state.ap.econTurn % 2 ) ? 19 : 18;
+    }
+
+    dispatch = async (action) => {
         this.setState(prevState => reducer(prevState, action));
     }
 
@@ -145,6 +131,33 @@ export class ApForm extends Component {
         return components;
     }
 
+    rollEcon = () => {
+        const adjustedAp =
+            ApDecisionService.getInstance().rollEcon({...this.state.ap}, this.state.econTable);
+
+        const adjustedEconTable = {...this.state.econTable};
+
+        if (adjustedAp.addEconOnRound.length > 0) {
+            let count = 0;
+            adjustedAp.addEconOnRound.forEach((val) => {
+                for (let i = val.round; i < gameLength; i++) {
+                    adjustedEconTable.rows[i].extraEcon += val.points;
+                    console.log(val.points);
+                }
+            })
+
+            adjustedAp.addEconOnRound = [];
+        }
+
+        this.setState({ ap: adjustedAp });
+        this.setState( { econTable: adjustedEconTable } );
+    }
+
+    rollFleet = () => {
+        const adjustedAp = ApDecisionService.getInstance().rollFleet( {...this.state.ap}, this.state.launchTable) ;
+        this.setState( { ap: adjustedAp } );
+    }
+
     render() {
        return(
            <div>
@@ -178,8 +191,8 @@ export class ApForm extends Component {
                    <ApFormRow
                        key={"turn-id-" + this.state.ap.econTurn}
                        ap={this.state.ap}
-                       launchRow={this.state.launchTable.rows[this.state.ap.econTurn]}
-                       econRow={this.state.econTable.rows[this.state.ap.econTurn]}
+                       launchRow={this.state.launchTable.rows[this.adjustedRowIndex()]}
+                       econRow={this.state.econTable.rows[this.adjustedRowIndex()]}
                    ></ApFormRow>
                    <tr>
                        <td colSpan="11">
@@ -196,7 +209,8 @@ export class ApForm extends Component {
                <div className={"buttons"}>
                    <button onClick={() => this.dispatch('decrement_round')}>&lt; PREV</button>
                    <button onClick={() => this.dispatch('increment_round')}>NEXT &gt;</button>
-                   <button onClick={() => this.dispatch('roll_econ')}>Roll Econ</button>
+                   <button onClick={() => this.rollEcon()}>Roll Econ</button>
+                   <button onClick={() => this.rollFleet()}>Roll Fleet</button>
                </div>
 
            </div>
