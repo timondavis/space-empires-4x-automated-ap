@@ -6,7 +6,7 @@ export class ApFormRow extends Component {
     render() {
         return (
             <tr>
-                <td>{this.props.ap.econTurn}</td>
+                <td>{this.props.ap.econTurn + 1}</td>
                 <td>{this.props.ap.econRolls}</td>
                 <td>{this.props.ap.extraEcon}</td>
                 <td>{this.props.ap.fleet}</td>
