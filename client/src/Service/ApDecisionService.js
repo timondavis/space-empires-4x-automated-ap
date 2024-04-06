@@ -6,6 +6,53 @@ import {TechService} from "./TechService";
 import {DieRange} from "../Model/DieRange";
 
 let _instance = null;
+
+/**
+ * Are the human's demonstrated Point Defense systems tech inferior to the AP's Fighting Systems?
+ *
+ * @param ap : AP
+ * @param humanState : HumanState
+ *
+ * @reutrn boolean
+ */
+const isHumanPointDefenseInferiorToApFighters = (ap, humanState) => {
+
+    const apFighterLevel = ApQuery.getInstance().getApTechLevel( 'fighter', ap )
+    if (  apFighterLevel > 0 ) {
+        if ( !humanState.isHumanShowedPointDefense ) {
+            return true;
+        }
+        else if (humanState.humanPointDefenseLevel < apFighterLevel ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Are the Human's demonstrated Scanner abilities inferior to the cloaking abilities of the AP?
+ *
+ * @param ap : AP
+ * @param humanState : HumanState
+ *
+ * @return boolean
+ */
+const isHumanScannersInferiorToApCloaking = (ap, humanState) => {
+
+    const apCloakingLevel = ApQuery.getInstance().getApTechLevel( 'cloaking', ap );
+
+    if (apCloakingLevel > 0) {
+        if (!humanState.isHumanHasScannerTech) {
+            return true;
+        } else if ( humanState.humanScannerLevel < apCloakingLevel ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 export class ApDecisionService {
 
     static getInstance() {
@@ -31,7 +78,7 @@ export class ApDecisionService {
         }
 
         if ( index > 19 ) {
-            index = ( index % 2 ) ? 18 : 19;
+            index = ( index % 2 ) ? 19 : 18;
         }
 
         return index;
@@ -98,27 +145,48 @@ export class ApDecisionService {
      * Roll the fleet die for AP and, if necessary, generate fleet.  Checks for move tech upgrade as well.
      * @param ap : AP
      * @param fleetLaunchTable : FleetLaunchTable
+     * @param humanState : HumanState
      */
-    rollFleet = (ap, fleetLaunchTable) => {
-        const fleetLaunchRow = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)];
-        const roll = this.d10();
+    rollFleet = (ap, fleetLaunchTable, humanState ) => {
+        const fleetLaunchRange = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)];
+        let roll = this.d10();
 
-        if ( !fleetLaunchRow?.min ) { return ap; }
+        /** TEST **/
+        ApQuery.getInstance().setApTechLevel( 'cloaking', 2, ap);
+        ApQuery.getInstance().setApTechLevel( 'fighter', 2, ap );
+        /**********/
 
-        const fleet = new ApFleet();
+        // Reduce roll by 2 if ap has superior Fighters against human Point Defense & sufficient fleet size.
+        if ( isHumanPointDefenseInferiorToApFighters(ap, humanState) && ap.fleet >= 25 ) {
+            roll = Math.max(1, roll - 2);
+            console.log( 'roll decremented (fighters)');
+        }
 
-        if ( this.isNumberInRange(roll, new DieRange(fleetLaunchRow.min, fleetLaunchRow.max)) && ap.fleet >= 6) {
+        // Reduce roll by 2 if ap has superior cloaking compared to human scanner tech & sufficient fleet size.
+        if ( isHumanScannersInferiorToApCloaking(ap, humanState) && ap.fleet >= 12) {
+            roll = Math.max(1, roll -2 );
+            console.log( 'roll decremented (cloaking)');
+        }
 
+        console.log('in range: ' + fleetLaunchRange.min + ' - ' + fleetLaunchRange.max );
+        console.log('roll was: ' + roll);
+        if ( !fleetLaunchRange?.min ) { return ap; }
+
+        if ( this.isNumberInRange(roll, fleetLaunchRange) && ap.fleet >= 6) {
+
+            // Prepare new fleet
             const fleet = new ApFleet();
 
             fleet.cp = ap.fleet;
             ap.fleet = 0;
+            fleet.isRaider = (isHumanScannersInferiorToApCloaking(ap, humanState) && fleet.cp >= 12);
             ap.currentFleets.push(fleet);
 
             const currentLevel = ApQuery.getInstance().getApTechLevel('move', ap);
             const newLevel     = currentLevel + 1;
             const key  = new TechRequirement();
 
+            // 2 in 5 chance that move tech is upgraded on fleet launch, if it can be done legally.
             key.class = 'move';
             key.level = newLevel;
             const newLevelDetails = TechService.getInstance().findTech( key );

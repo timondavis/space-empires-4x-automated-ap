@@ -158,7 +158,7 @@ export class ApForm extends Component {
 
     rollFleet = () => {
         let adjustedAp = Object.assign(new AP(), {...this.state.ap});
-        adjustedAp = ApDecisionService.getInstance().rollFleet( adjustedAp, this.state.launchTable);
+        adjustedAp = ApDecisionService.getInstance().rollFleet( adjustedAp, this.state.launchTable, this.props.humanState );
         this.setState({ ap: adjustedAp });
         this.props.apUpdateCallback(this.state.ap);
     }

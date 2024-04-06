@@ -20,16 +20,16 @@ export class ApFleets extends Component {
                     </thead>
                     <tbody>
 
-                    </tbody>
                     {this.props.ap.currentFleets.length > 0 && this.props.ap.currentFleets.map((fleet, index) =>
                         (
-                            <tr>
+                            <tr key={index} >
                                 <td>{index}</td>
                                 <td>{fleet.cp}</td>
                                 {fleet.isRaider ? (<td>Y</td>) : (<td>N</td>)}
                             </tr>
                         )
                     )}
+                    </tbody>
                 </table>
             </div>
         );

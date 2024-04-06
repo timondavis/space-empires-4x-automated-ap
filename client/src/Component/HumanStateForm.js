@@ -1,12 +1,11 @@
-import {Component, useReducer, useState} from "react";
-import {HumanState} from "../Model/HumanState";
+import {Component} from "react";
 
 export class HumanStateForm extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            formState: new HumanState()
+            formState: props.humanState
         };
     }
 
@@ -53,7 +52,7 @@ export class HumanStateForm extends Component {
                                 onChange={this.handleValueChange}
                                 value={this.state.formState.humanRaiderLevel}
                             >
-                                <option value="0">0</option>
+                                <option value="0">Select Raider Level</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                             </select>
@@ -88,7 +87,7 @@ export class HumanStateForm extends Component {
                                     onChange={this.handleValueChange}
                                     value={this.state.formState.humanPointDefenseLevel}
                             >
-                                <option value="0">0</option>
+                                <option value="0">Select Point Defense Level</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                                 <option value="3">3</option>
@@ -114,7 +113,7 @@ export class HumanStateForm extends Component {
                                     onChange={this.handleValueChange}
                                     value={this.state.formState.humanScannerLevel}
                             >
-                                <option value="0">0</option>
+                                <option value="0">Select Scanner Level</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
                             </select>

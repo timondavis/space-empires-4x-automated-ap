@@ -62,7 +62,7 @@ export class ApQuery {
         })
 
         if ( techIndex >= 0 ) {
-            techIndex.level = level;
+            ap.purchasedTech[techIndex].level = level;
         } else {
             const tech = new AppliedTech();
             tech.level = level;

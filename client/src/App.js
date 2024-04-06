@@ -6,10 +6,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {useState} from "react";
 import {AP} from "./Model/AP";
 import {ApFleets} from "./Component/AP/ApFleets";
+import {HumanState} from "./Model/HumanState";
 
 function App() {
 
-    const [humanState, setHumanState] = useState(null);
+    const [humanState, setHumanState] = useState(new HumanState());
     const [apState, setApState] = useState( [
         new AP(0, 5),
         new AP(1, 5),
@@ -37,9 +38,9 @@ function App() {
 
     return (
         <div className="App">
-            <HumanStateForm formUpdateCallback={ (data) => setHumanState(data)}></HumanStateForm>
-            <ApForm ap={apState[0]} apUpdateCallback={(data) => updateAp(data)}></ApForm>
-            <ApFleets ap={apState[0]} apUpdateCallback={(data) => updateAp(data)}></ApFleets>
+            <HumanStateForm humanState={humanState} formUpdateCallback={ (data) => setHumanState(data)}></HumanStateForm>
+            <ApForm humanState={humanState} ap={apState[0]} apUpdateCallback={(data) => updateAp(data)}></ApForm>
+            <ApFleets humanState={humanState} ap={apState[0]} apUpdateCallback={(data) => updateAp(data)}></ApFleets>
         </div>
     );
 }
