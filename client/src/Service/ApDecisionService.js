@@ -100,11 +100,12 @@ export class ApDecisionService {
      * @param fleetLaunchTable : FleetLaunchTable
      */
     rollFleet = (ap, fleetLaunchTable) => {
-        debugger;
         const fleetLaunchRow = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)];
         const roll = this.d10();
 
         if ( !fleetLaunchRow?.min ) { return ap; }
+
+        const fleet = new ApFleet();
 
         if ( this.isNumberInRange(roll, new DieRange(fleetLaunchRow.min, fleetLaunchRow.max)) && ap.fleet >= 6) {
 
@@ -122,9 +123,11 @@ export class ApDecisionService {
             key.level = newLevel;
             const newLevelDetails = TechService.getInstance().findTech( key );
 
-            if (this.isNumberInRange(this.d10(), new DieRange(1,4)) && newLevel <= 7 && ap.tech >= newLevelDetails.cost) {
-                ApQuery.getInstance().setApTechLevel('move', currentLevel + 1, ap);
-                ap.tech -= newLevelDetails.cost;
+            if (this.isNumberInRange(this.d10(), new DieRange(1,4)) && newLevel <= 7) {
+                if ( ap.tech >= newLevelDetails.cost) {
+                    ApQuery.getInstance().setApTechLevel('move', currentLevel + 1, ap);
+                    ap.tech -= newLevelDetails.cost;
+                }
             }
         }
 

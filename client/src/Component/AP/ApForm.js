@@ -9,7 +9,7 @@ const gameLength = 20;
 
 const initialState = {
     apHistory: [],
-    ap: new AP(),
+    ap: null,
     econTable : new EconRollTable(),
     launchTable : new FleetLaunchTable(),
     showHistory: false,
@@ -82,7 +82,7 @@ export class ApForm extends Component {
 
     constructor(props) {
         super(props);
-        this.state = initialState;
+        this.state = { ...initialState, ap: props.ap };
     }
 
     adjustedRowIndex = () => {
@@ -149,69 +149,74 @@ export class ApForm extends Component {
             adjustedAp.addEconOnRound = [];
         }
 
-        this.setState({ ap: adjustedAp });
-        this.setState( { econTable: adjustedEconTable } );
+        this.setState({ ap: adjustedAp }, () => {
+            this.setState( { econTable: adjustedEconTable }, () => {
+                this.props.apUpdateCallback(this.state.ap);
+            });
+        });
     }
 
     rollFleet = () => {
-        const adjustedAp = ApDecisionService.getInstance().rollFleet( {...this.state.ap}, this.state.launchTable) ;
-        this.setState( { ap: adjustedAp } );
+        let adjustedAp = Object.assign(new AP(), {...this.state.ap});
+        adjustedAp = ApDecisionService.getInstance().rollFleet( adjustedAp, this.state.launchTable);
+        this.setState({ ap: adjustedAp });
+        this.props.apUpdateCallback(this.state.ap);
     }
 
     render() {
-       return(
-           <div>
-               <table>
-                   <thead>
-                   <tr>
-                       <th>Econ Turn</th>
-                       <th>Econ Rolls</th>
-                       <th>Extra Econ</th>
-                       <th>Fleet</th>
-                       <th>Tech</th>
-                       <th>Defense</th>
-                       <th>Fleet Launch</th>
-                       <th>Econ</th>
-                       <th>Fleet</th>
-                       <th>Tech</th>
-                       <th>Def</th>
-                       <th>All Techs Purchased</th>
-                   </tr>
-                   </thead>
-                   <tbody>
-                   {this.state.showHistory && this.history()}
-                   < tr >
-                       <td colSpan="11">
-                           <button onClick={() => this.dispatch((this.state.showHistory) ? 'hide_history' : 'show_history')}>
-                               {this.state.showHistory && <>Hide History</>}
-                               {!this.state.showHistory && <>Show History</>}
-                           </button>
-                       </td>
-                   </tr>
-                   <ApFormRow
-                       key={"turn-id-" + this.state.ap.econTurn}
-                       ap={this.state.ap}
-                       launchRow={this.state.launchTable.rows[this.adjustedRowIndex()]}
-                       econRow={this.state.econTable.rows[this.adjustedRowIndex()]}
-                   ></ApFormRow>
-                   <tr>
-                       <td colSpan="11">
-                          <button onClick={() => this.dispatch((this.state.showFuture) ? 'hide_future' : 'show_future')}>
-                              {this.state.showFuture && <>Hide Later Turns</>}
-                              {!this.state.showFuture && <>Show Later Turns</>}
-                          </button>
-                       </td>
-                   </tr>
-                   {this.state.showFuture && this.upcoming()}
-                   </tbody>
-               </table>
+        return(
+            <div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Econ Turn</th>
+                        <th>Econ Rolls</th>
+                        <th>Extra Econ</th>
+                        <th>Fleet</th>
+                        <th>Tech</th>
+                        <th>Defense</th>
+                        <th>Fleet Launch</th>
+                        <th>Econ</th>
+                        <th>Fleet</th>
+                        <th>Tech</th>
+                        <th>Def</th>
+                        <th>All Techs Purchased</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {this.state.showHistory && this.history()}
+                    < tr >
+                        <td colSpan="11">
+                            <button onClick={() => this.dispatch((this.state.showHistory) ? 'hide_history' : 'show_history')}>
+                                {this.state.showHistory && <>Hide History</>}
+                                {!this.state.showHistory && <>Show History</>}
+                            </button>
+                        </td>
+                    </tr>
+                    <ApFormRow
+                        key={"turn-id-" + this.state.ap.econTurn}
+                        ap={this.state.ap}
+                        launchRow={this.state.launchTable.rows[this.adjustedRowIndex()]}
+                        econRow={this.state.econTable.rows[this.adjustedRowIndex()]}
+                    ></ApFormRow>
+                    <tr>
+                        <td colSpan="11">
+                            <button onClick={() => this.dispatch((this.state.showFuture) ? 'hide_future' : 'show_future')}>
+                               {this.state.showFuture && <>Hide Later Turns</>}
+                               {!this.state.showFuture && <>Show Later Turns</>}
+                            </button>
+                        </td>
+                    </tr>
+                    {this.state.showFuture && this.upcoming()}
+                    </tbody>
+                </table>
 
-               <div className={"buttons"}>
-                   <button onClick={() => this.dispatch('decrement_round')}>&lt; PREV</button>
-                   <button onClick={() => this.dispatch('increment_round')}>NEXT &gt;</button>
-                   <button onClick={() => this.rollEcon()}>Roll Econ</button>
-                   <button onClick={() => this.rollFleet()}>Roll Fleet</button>
-               </div>
+                <div className={"buttons"}>
+                    <button onClick={() => this.dispatch('decrement_round')}>&lt; PREV</button>
+                    <button onClick={() => this.dispatch('increment_round')}>NEXT &gt;</button>
+                    <button onClick={() => this.rollEcon()}>Roll Econ</button>
+                    <button onClick={() => this.rollFleet()}>Roll Fleet</button>
+                </div>
 
            </div>
        );

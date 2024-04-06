@@ -1,4 +1,4 @@
-const TechList = {
+export const TechList = {
     ss1 : { label : 'Ship Size 1', class: 'ship_size', level: 1, cost: 0  },
     ss2 : { label : 'Ship Size 2', class: 'ship_size', level: 2, cost: 10 },
     ss3 : { label : 'Ship Size 3', class: 'ship_size', level: 3, cost: 15 },
@@ -64,5 +64,3 @@ const TechList = {
     msw1 : { label : 'Mine Sweep 1', class: 'mine_sweep', level: 1, cost: 10 },
     msw2 : { label : 'Mine Sweep 2', class: 'mine_sweep', level: 2, cost: 15 },
 }
-
-export default TechList;

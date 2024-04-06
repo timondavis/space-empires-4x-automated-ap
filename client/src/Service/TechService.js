@@ -1,6 +1,8 @@
-import TechList from "../Model/TechList";
+import {TechList} from "../Model/TechList";
 
 let _instance = null;
+const techList = TechList;
+
 export class TechService {
 
     static getInstance() {
@@ -13,17 +15,16 @@ export class TechService {
 
     /**
      * @param techRequirement : TechRequirement
-     * @returns {
      */
-    findTech(techRequirement) {
-        const found = Object.keys(TechList).map((key, idx) => {
-            if (TechList[key].class === techRequirement.class &&  TechList[key].level === techRequirement.level ) {
-                return TechList[key]
+    findTech = (techRequirement) => {
+        const found = Object.keys(techList).filter((key, idx) => {
+            if (techList[key].class === techRequirement.class &&  techList[key].level === techRequirement.level ) {
+                return techList[key]
             }
         });
 
-        if (found.length === 0 ) {
-            return found[0];
+        if (found.length === 1 ) {
+            return techList[found[0]];
         }
     }
 }

@@ -3,6 +3,7 @@ import {ApFleet} from "./ApFleet";
 import {PendingEconAddition} from "./PendingEconAddition";
 
 export class AP {
+    id = 0;
     color = '';
     econTurn = 0;
     fleet = 0;
@@ -15,7 +16,13 @@ export class AP {
     addEconOnRound = [new PendingEconAddition()];
 
 
-    constructor( difficultyIncrement = 5) {
+    /**
+     *
+     * @param id : number Incremental ID
+     * @param difficultyIncrement Multiple of 5.  5 = Easy, 10 = Medium, 15 = Hard.
+     */
+    constructor( id, difficultyIncrement = 5) {
+        this.id = id;
         this.purchasedTech = [];
         this.currentFleets = [];
         this.fleets = [];
