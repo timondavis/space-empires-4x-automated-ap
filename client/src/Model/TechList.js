@@ -63,11 +63,6 @@ const TechList = {
     msw0 : { label : 'Mine Sweep 0', class: 'mine_sweep', level: 0, cost: 0 },
     msw1 : { label : 'Mine Sweep 1', class: 'mine_sweep', level: 1, cost: 10 },
     msw2 : { label : 'Mine Sweep 2', class: 'mine_sweep', level: 2, cost: 15 },
-
-
-
-
-
 }
 
 export default TechList;
