@@ -151,25 +151,16 @@ export class ApDecisionService {
         const fleetLaunchRange = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)];
         let roll = this.d10();
 
-        /** TEST **/
-        ApQuery.getInstance().setApTechLevel( 'cloaking', 2, ap);
-        ApQuery.getInstance().setApTechLevel( 'fighter', 2, ap );
-        /**********/
-
         // Reduce roll by 2 if ap has superior Fighters against human Point Defense & sufficient fleet size.
         if ( isHumanPointDefenseInferiorToApFighters(ap, humanState) && ap.fleet >= 25 ) {
             roll = Math.max(1, roll - 2);
-            console.log( 'roll decremented (fighters)');
         }
 
         // Reduce roll by 2 if ap has superior cloaking compared to human scanner tech & sufficient fleet size.
         if ( isHumanScannersInferiorToApCloaking(ap, humanState) && ap.fleet >= 12) {
             roll = Math.max(1, roll -2 );
-            console.log( 'roll decremented (cloaking)');
         }
 
-        console.log('in range: ' + fleetLaunchRange.min + ' - ' + fleetLaunchRange.max );
-        console.log('roll was: ' + roll);
         if ( !fleetLaunchRange?.min ) { return ap; }
 
         if ( this.isNumberInRange(roll, fleetLaunchRange) && ap.fleet >= 6) {
