@@ -11,7 +11,7 @@ export class ShowDiceRange extends Component {
 
             <>
                 <span>{min}</span>
-                {min && max && min !== max && <span>, </span>}
+                {min && max && min !== max && <span> - </span>}
                 {min !== max && <span>{max}</span>}
             </>
         )

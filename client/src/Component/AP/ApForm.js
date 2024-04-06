@@ -3,7 +3,7 @@ import {AP} from "../../Model/AP";
 import {EconRollTable} from "../../Model/EconRollTable"
 import {FleetLaunchTable} from "../../Model/FleetLaunchTable";
 import {ApFormRow} from "./ApFormRow";
-import {ShowDiceRange} from "../ShowDiceRange";
+import {ApDecisionService} from "../../Service/ApDecisionService";
 
 const gameLength = 20;
 
@@ -43,27 +43,51 @@ const reducer = (state, action) => {
                     showFuture: true
                 }
             }
-            case 'increment_round':
-                history = [ ...state.apHistory ];
-                history.push( { ...state.ap } );
+            case 'roll_econ': {
+                const adjustedAp =
+                    ApDecisionService.getInstance().rollEcon( { ...state.ap }, state.econTable );
+                const adjustedEconTable = { ...state.econTable };
+
+                if ( adjustedAp.addEconOnRound.length > 0 ) {
+                    let count = 0;
+                    adjustedAp.addEconOnRound.map((val) => {
+                       for ( let i = val.round ; i < gameLength ; i ++ ) {
+                           adjustedEconTable.rows[i].extraEcon += val.points;
+                       }
+                    })
+
+                    adjustedAp.addEconOnRound = [];
+                }
+
                 return {
                     ...state,
-                    ap: {
-                        ...state.ap,
-                        econTurn: state.ap.econTurn + 1
-                    },
+                    ap : adjustedAp,
+                    econTable: adjustedEconTable
+                }
+            }
+            case 'increment_round':
+
+                history = [ ...state.apHistory ];
+                history.push( { ...state.ap } );
+
+                const newAp = { ...state.ap };
+
+                const newEconTurn = newAp.econTurn + 1;
+                newAp.econTurn = newEconTurn;
+
+                return {
+                    ...state,
+                    ap: newAp,
                     apHistory: history
                 }
+
             case 'decrement_round':
                 history = [ ...state.apHistory ];
-                history.pop();
+                const lastRecord = history.pop();
                 if (state.ap.econTurn > 0) {
                     return {
                         ...state,
-                        ap: {
-                            ...state.ap,
-                            econTurn: state.ap.econTurn - 1
-                        },
+                        ap: lastRecord,
                         apHistory: history
                     }
                 }
@@ -172,6 +196,7 @@ export class ApForm extends Component {
                <div className={"buttons"}>
                    <button onClick={() => this.dispatch('decrement_round')}>&lt; PREV</button>
                    <button onClick={() => this.dispatch('increment_round')}>NEXT &gt;</button>
+                   <button onClick={() => this.dispatch('roll_econ')}>Roll Econ</button>
                </div>
 
            </div>
