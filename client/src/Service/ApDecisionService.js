@@ -4,6 +4,7 @@ import {ApQuery} from "./ApQuery";
 import {TechRequirement} from "../Model/TechReqiurement";
 import {TechService} from "./TechService";
 import {DieRange} from "../Model/DieRange";
+import {ShipService} from "./ShipService";
 
 let _instance = null;
 
@@ -191,15 +192,19 @@ export class ApDecisionService {
     /**
      * Upgrade tech, pick out ships, inform the user and release the fleet.
      *
-     * @param fleet : ApFleet
+     * @param fleetIndex : number
      * @param humanState : HumanState
      * @param ap : AP
      *
-     * @return AP
+     * @return ApFleet
      */
-    releaseFleet = (fleet, humanState, ap) => {
-        ap = this.upgradeApTech( humanState, ap );
-        return ap;
+    releaseFleet = (fleetIndex, humanState, ap) => {
+        const fleet = ap.currentFleets[fleetIndex];
+        let updatedAp = this.upgradeApTech( humanState, { ...ap } );
+        updatedAp = this.buyShips( fleet, humanState, updatedAp, { ...ap } );
+        updatedAp.currentFleets[fleetIndex] = fleet;
+
+        return updatedAp;
     }
 
     /**
@@ -313,7 +318,7 @@ export class ApDecisionService {
                     break;
             }
 
-            if ( techChoice == 'reroll' ) {
+            if ( techChoice === 'reroll' ) {
                 continue;
             }
 
@@ -358,6 +363,202 @@ export class ApDecisionService {
             if ( shipUpgradeRange && this.isNumberInRange(this.d10(), shipUpgradeRange)) {
                 ApQuery.getInstance().buyApTechUpgrade('ship_size', ap);
             }
+        }
+    }
+
+    /**
+     * Ship purchase routine, associated with Fleet Release
+     *
+     * @param fleet : ApFleet
+     * @param humanState : HumanState
+     * @param ap : AP
+     * @param oldAp : AP
+     */
+    buyShips( fleet, humanState, ap, oldAp  ) {
+        const ss = ShipService.getInstance();
+        const apq = ApQuery.getInstance();
+        let isCarrierFleet = false;
+
+        if (fleet.isRaider) {
+           return this.buyAllRaiders(fleet, ap);
+        }
+
+        if (apq.getApTechLevel( 'fighter', ap ) > 0) {
+            const carrier = ss.getShipByCode('CV');
+            const fighter = ss.getShipByCode('F');
+            if ( ! humanState.isHumanShowedPointDefense || this.isNumberInRange(this.d10(), new DieRange(1,4))) {
+               while ( fleet.cp >= (carrier.cpCost + (fighter.cpCost * 3)) ) {
+                   apq.buyApShip(carrier, ap, fleet);
+                   apq.buyApShip(fighter, ap, fleet);
+                   apq.buyApShip(fighter, ap, fleet);
+                   apq.buyApShip(fighter, ap, fleet);
+                   isCarrierFleet = true;
+               }
+            }
+        }
+
+        if ( ! isCarrierFleet && fleet.cp >= 12 ) {
+            if (
+                apq.getApTechLevel('cloaking', oldAp) === 0 &&
+                apq.getApTechLevel( 'cloaking', ap ) > humanState.humanScannerLevel
+            ) {
+                return this.buyAllRaiders(fleet, ap);
+            }
+        }
+
+        this.buyMostExpensiveShipAvailable(fleet, ap);
+
+        let roll = this.d10();
+        let oneOffScoutsAssessed = false;
+        while( fleet.cp >= 6 ) {
+
+            if ( !oneOffScoutsAssessed && humanState.isHumanHasUsedFighters && apq.getApTechLevel('point_defense') > 0) {
+                oneOffScoutsAssessed = true;
+                roll -= 2;
+                roll = Math.max(roll, 1);
+
+                if (roll >= 4) {
+                    const cvs = apq.countShipsInFleet( 'CV', fleet );
+                    const fighters = apq.countShipsInFleet( 'F', fleet );
+
+                    if ( cvs < 1 || fighters < 3 ) {
+                        const scout = ss.getShipByCode('SC');
+                        apq.buyApShip( scout, ap, fleet );
+                        apq.buyApShip( scout, ap, fleet );
+                    }
+                }
+            }
+
+            switch(roll) {
+                case(1):
+                case(2):
+                case(3):
+                    this.buyLargestFleet(fleet, ap);
+                    break;
+                case(4):
+                case(5):
+                case(6):
+                    this.buyBalancedFleet(fleet, ap);
+                    break;
+                case(7):
+                case(8):
+                case(9):
+                case(10):
+                    this.buyMostExpensiveFleet(fleet, ap);
+                    break;
+                default:
+                    throw 'Bad State in Ship Purchase Loop';
+            }
+        }
+
+        return ap;
+    }
+
+    /**
+     * Buy All Raider Ships for AP
+     *
+     * @param fleet : ApFleet
+     * @param ap : AP
+     */
+    buyAllRaiders( fleet, ap ) {
+        const ss = ShipService.getInstance();
+        const apq = ApQuery.getInstance();
+
+        const raider = ss.getShipByCode( 'R' );
+
+        while( fleet.cp > raider.cpCost ) {
+            apq.buyApShip( raider, ap, fleet );
+        }
+
+        return ap;
+    }
+
+    /**
+     * Buy the largest fleet possible for the AP (ie spend all avilable money on smallest ships)
+     *
+     * @param fleet
+     * @param ap
+     */
+    buyLargestFleet = ( fleet, ap ) => {
+        const ss = ShipService.getInstance();
+        const apq = ApQuery.getInstance();
+
+        let candidates = ss.filterToApFleetShips();
+        candidates = apq.getApEligibleShipsOnList(candidates, ap, fleet.cp);
+        const leastExpensiveShip = ss.getLeastExpensiveOnList( candidates );
+
+        while( leastExpensiveShip && fleet.cp >= leastExpensiveShip.cpCost ) {
+            apq.buyApShip( leastExpensiveShip, ap, fleet);
+        }
+    }
+
+    /**
+     * Buy a balaced fleet for the AP
+     *
+     * @param fleet : ApFleet
+     * @param ap : AP
+     */
+    buyBalancedFleet = ( fleet, ap ) => {
+        const ss = ShipService.getInstance();
+        const apq = ApQuery.getInstance();
+
+        const apAttack = apq.getApTechLevel( 'attack', ap );
+        const apDefense = apq.getApTechLevel( 'defense', ap );
+
+        let candidates = ss.filterToApFleetShips();
+        candidates = apq.getApEligibleShipsOnList( candidates, ap, fleet.cp );
+        candidates = candidates.filter((ship) => {
+            return ship.maxAttack >= apAttack && ship.maxDefense >= apDefense;
+        })
+
+        let mostExpensiveShip = null;
+        while ( candidates && candidates.length > 0 ) {
+            mostExpensiveShip = ss.getMostExpensiveOnList(candidates);
+            apq.buyApShip(mostExpensiveShip, ap, fleet);
+            candidates = apq.getApEligibleShipsOnList( candidates, ap, fleet.cp );
+            candidates = candidates.filter((ship) => {
+                return ship.maxAttack >= apAttack && ship.maxDefense >= apDefense;
+            })
+        }
+    }
+
+    /**
+     * Buy the most expensive fleet
+     *
+     * @param fleet : ApFleet
+     * @param ap : AP
+     */
+    buyMostExpensiveFleet( fleet, ap ) {
+        const ss = ShipService.getInstance();
+        const apq = ApQuery.getInstance();
+
+        let candidates = ss.filterToApFleetShips();
+        let mostExpensiveShip = null;
+        candidates = apq.getApEligibleShipsOnList(candidates, ap, fleet.cp)
+
+        while( candidates.length > 0) {
+            mostExpensiveShip = ss.getMostExpensiveOnList( candidates );
+            apq.buyApShip(mostExpensiveShip, ap, fleet );
+            candidates = apq.getApEligibleShipsOnList(candidates, ap, fleet.cp)
+        }
+    }
+
+    /**
+     * Buy the most expensive ship available to the AP
+     *
+     * @param fleet : ApFleet
+     * @param ap : AP
+     */
+    buyMostExpensiveShipAvailable = (fleet, ap) => {
+        const ss = ShipService.getInstance();
+        const apq = ApQuery.getInstance();
+
+        let candidates = ss.filterToApFleetShips();
+        candidates = apq.getApEligibleShipsOnList(candidates, ap, fleet.cp);
+        const mostExpensiveShip = ss.getMostExpensiveOnList( candidates );
+
+        if ( mostExpensiveShip ) {
+            apq.buyApShip(mostExpensiveShip, ap, fleet);
         }
     }
 }

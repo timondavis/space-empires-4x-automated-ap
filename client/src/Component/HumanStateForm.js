@@ -42,7 +42,7 @@ export class HumanStateForm extends Component {
                             Human Showed Raiders
                         </label>
                     </div>
-                    { this.state.formState.isHumanShowedRaiders &&
+                    {this.state.formState.isHumanShowedRaiders &&
                         <div className="mb-3 ms-1">
                             <label className="form-label" htmlFor="humanRaiderLevel">Human Raider Level</label>
                             <select
@@ -65,11 +65,12 @@ export class HumanStateForm extends Component {
                             id={"isHumanUsedMines"}
                             checked={this.state.formState.isHumanUsedMines}
                             onChange={this.handleCbxChange}
-                            />
+                        />
                         <label className={"form-check-label"} htmlFor={"isHumanUsedMines"}>Human Used Mines</label>
                     </div>
                     <div className={"mb-3 form-check"}>
-                        <label className={"form-check-label"} htmlFor={"isHumanShowedPointDefense"}>Human Showed Point Defense</label>
+                        <label className={"form-check-label"} htmlFor={"isHumanShowedPointDefense"}>Human Showed Point
+                            Defense</label>
                         <input
                             className={"form-check-input"}
                             type={"checkbox"}
@@ -95,7 +96,8 @@ export class HumanStateForm extends Component {
                         </div>
                     }
                     <div className={"mb-3 form-check"}>
-                        <label className={"form-check-label"} htmlFor={"isHumanHasScannerTech"}>Human Has Scanner Tech</label>
+                        <label className={"form-check-label"} htmlFor={"isHumanHasScannerTech"}>Human Has Scanner
+                            Tech</label>
                         <input
                             className={"form-check-input"}
                             type={"checkbox"}
@@ -106,7 +108,8 @@ export class HumanStateForm extends Component {
                     </div>
                     {this.state.formState.isHumanHasScannerTech &&
                         <div className={"mb-3 ms-1"}>
-                            <label className={"form-label"} htmlFor={"humanScannerLevel"}>Human Scanner Tech Level</label>
+                            <label className={"form-label"} htmlFor={"humanScannerLevel"}>Human Scanner Tech
+                                Level</label>
                             <select className={"form-select"}
                                     aria-label={"Select the Human's level of Scanner Technology"}
                                     id={"humanScannerLevel"}
@@ -119,6 +122,16 @@ export class HumanStateForm extends Component {
                             </select>
                         </div>
                     }
+                    <div className={"mb-3 form-check"}>
+                        <label className={"form-check-label"} htmlFor={"isHumanHasUsedFighters"}>Human Has Used Fighters</label>
+                        <input
+                            className={"form-check-input"}
+                            type={"checkbox"}
+                            id={"isHumanHasUsedFighters"}
+                            checked={this.state.formState.isHumanHasUsedFighters}
+                            onChange={this.handleCbxChange}
+                        />
+                    </div>
                 </form>
             </div>
         );

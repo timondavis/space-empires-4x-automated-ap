@@ -4,6 +4,7 @@ import {EconRollTable} from "../../Model/EconRollTable"
 import {FleetLaunchTable} from "../../Model/FleetLaunchTable";
 import {ApFormRow} from "./ApFormRow";
 import {ApDecisionService} from "../../Service/ApDecisionService";
+import {Modal} from "../Modal";
 
 const gameLength = 20;
 
@@ -13,7 +14,9 @@ const initialState = {
     econTable : new EconRollTable(),
     launchTable : new FleetLaunchTable(),
     showHistory: false,
-    showFuture: false
+    showFuture: false,
+    showModal : false,
+    modalContent : ''
 }
 
 export class ApForm extends Component {
@@ -60,7 +63,20 @@ export class ApForm extends Component {
                 return {
                     ...state,
                     apHistory: history
-                }
+                };
+
+            case 'show_modal':
+
+                return {
+                    ...state,
+                    showModal: true
+                };
+
+            case 'hide_modal':
+                return {
+                    ...state,
+                    hideModal: true
+                };
 
             default: break;
         }
@@ -217,6 +233,9 @@ export class ApForm extends Component {
                     <button onClick={() => this.rollFleet()}>Roll Fleet</button>
                 </div>
 
+                {this.state.showModal && (
+                    <Modal content={this.state.modalContent}></Modal>
+                )}
            </div>
        );
     }

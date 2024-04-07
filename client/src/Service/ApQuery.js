@@ -68,6 +68,19 @@ export class ApQuery {
     }
 
     /**
+     *
+     * @param ship : ShipTemplate
+     * @param ap : AP
+     * @param fleet : ApFleet
+     */
+    buyApShip = ( ship, ap, fleet ) => {
+        if ( fleet.cp >= ship.cpCost && this.doesApHaveRequiredTechForShip(ship, ap)) {
+            fleet.cp -= ship.cpCost;
+            fleet.ships.push( ship );
+        }
+    }
+
+    /**
      * Set/Update tech level for a given tech for the AP
      *
      * @param name : string
@@ -129,5 +142,61 @@ export class ApQuery {
         }
 
         return null;
+    }
+
+    /**
+     * Does the AP have the technology required for the given ship?
+     *
+     * @param ship : ShipTemplate
+     * @param ap : AP
+     * @return boolean
+     */
+    doesApHaveRequiredTechForShip( ship, ap ) {
+        let qualified = true;
+        ship.requiredTech.forEach((requirement) => {
+            let found = false;
+            ap.purchasedTech.forEach((purchasedTech) => {
+                if ( purchasedTech.name === requirement.class && purchasedTech.level >= requirement.level ) {
+                    found = true;
+                }
+            })
+
+            if ( ! found ) {
+                qualified = false;
+            }
+        });
+
+        return qualified;
+    }
+
+    /**
+     * Given a sublist of ships.  Given a list,
+     * filter for ships that the AP can AFFORD and that the AP is TECH QUALIFIED for.
+     * @param list : ShipTemplate[]
+     * @param ap : AP
+     * @param budget : number
+     * @return {ShipTemplate[]}
+     */
+    getApEligibleShipsOnList = ( list, ap , budget) => {
+        return list.filter((ship) =>
+            this.doesApHaveRequiredTechForShip( ship, ap ) &&
+            ship.cpCost <= budget
+        );
+    }
+
+    /**
+     * Get a count of a given type of ship in a given fleet.
+     * @param shipName : string
+     * @param fleet : ApFleet
+     */
+    countShipsInFleet = (shipName, fleet) => {
+        let ships = 0;
+        fleet.ships.forEach((ship) => {
+           if ( ship.name === shipName ) {
+               ships++;
+           }
+        });
+
+        return ships;
     }
 }

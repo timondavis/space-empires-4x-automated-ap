@@ -13,7 +13,6 @@ export class AP {
     purchasedTech = [ new AppliedTech() ];
     currentFleets = [ new ApFleet() ];
     difficultyIncrement = 0;
-    fleets = [ new ApFleet ];
     addEconOnRound = [new PendingEconAddition()];
 
     /**
@@ -25,7 +24,6 @@ export class AP {
         this.id = id;
         this.purchasedTech = [];
         this.currentFleets = [];
-        this.fleets = [];
         this.addEconOnRound = [];
         this.difficultyIncrement = difficultyIncrement;
 

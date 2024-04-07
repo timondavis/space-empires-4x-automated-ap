@@ -6,4 +6,5 @@ export class HumanState {
     humanPointDefenseLevel = 0;
     isHumanHasScannerTech = false;
     humanScannerLevel = 0;
+    isHumanHasUsedFighters = false;
 }
