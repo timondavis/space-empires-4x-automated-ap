@@ -177,19 +177,183 @@ export class ApDecisionService {
             const newLevel     = currentLevel + 1;
             const key  = new TechRequirement();
 
-            // 2 in 5 chance that move tech is upgraded on fleet launch, if it can be done legally.
+            // 2 in 5 chance that move tech is upgraded on fleet launch.
             key.class = 'move';
             key.level = newLevel;
-            const newLevelDetails = TechService.getInstance().findTech( key );
-
-            if (this.isNumberInRange(this.d10(), new DieRange(1,4)) && newLevel <= 7) {
-                if ( ap.tech >= newLevelDetails.cost) {
-                    ApQuery.getInstance().setApTechLevel('move', currentLevel + 1, ap);
-                    ap.tech -= newLevelDetails.cost;
-                }
+            if (this.isNumberInRange(this.d10(), new DieRange(1,4))) {
+                ApQuery.getInstance().buyApTechUpgrade('move', ap);
             }
         }
 
         return ap;
+    }
+
+    /**
+     * Upgrade tech, pick out ships, inform the user and release the fleet.
+     *
+     * @param fleet : ApFleet
+     * @param humanState : HumanState
+     * @param ap : AP
+     *
+     * @return AP
+     */
+    releaseFleet = (fleet, humanState, ap) => {
+        ap = this.upgradeApTech( humanState, ap );
+    }
+
+    /**
+     * Upgrade AP Tech.  Designed for use on fleet release.
+     *
+     * @param humanState : HumanState
+     * @param ap : AP
+     *
+     * @return AP
+     */
+    upgradeApTech = (humanState, ap) => {
+        const q = ApQuery.getInstance();
+        const t = TechService.getInstance();
+        const apPointDefenseLevel = q.getApTechLevel('point_defense', ap);
+        const apMineSweepLevel = q.getApTechLevel('mine_sweep', ap);
+        const apScannersLevel = q.getApTechLevel( 'scanner', ap);
+        const apFighterLevel = q.getApTechLevel( 'fighter', ap);
+
+        if ( humanState.isHumanShowedRaiders && apPointDefenseLevel === 0) {
+            q.buyApTechUpgrade('point_defense', ap );
+        }
+
+        if ( humanState.isHumanUsedMines && apMineSweepLevel === 0 ) {
+            q.buyApTechUpgrade('mine_sweep',  ap );
+        }
+
+        if ( humanState.isHumanShowedRaiders && humanState.humanRaiderLevel >= apScannersLevel ) {
+            if( this.isNumberInRange(this.d10(), new DieRange(1,4))) {
+               q.buyApTechUpgrade( 'scanner' );
+            }
+        }
+
+        this.maybeUpgradeApShipSize(ap);
+
+        if (apFighterLevel > 0 && humanState.isHumanShowedPointDefense === false) {
+            if ( this.isNumberInRange(this.d10(), new DieRange(1,6))) {
+                q.buyApTechUpgrade( 'fighter', ap );
+            }
+        }
+
+        const candidateTech = ['attack', 'defense', 'tactics', 'cloaking', 'scanner', 'fighter', 'point_defense', 'mine_sweep' ]
+        let affordableTech = q.getAvailableTechForTechNameList(candidateTech, ap);
+        let techRoll = 0;
+        let techChoice = '';
+
+        while (affordableTech.length > 0) {
+            techRoll = this.d10();
+            techChoice = '';
+
+            switch(techRoll) {
+                case(1):
+                case(2):
+                    if (t.isTechInList(affordableTech, 'attack')) {
+                        techChoice = 'attack;'
+                        break;
+                    }
+                case(3):
+                case(4):
+                    if (t.isTechInList(affordableTech, 'defense')) {
+                        techChoice = 'defense';
+                        break;
+                    }
+                case(5):
+                    if (
+                        q.getApTechLevel('attack', ap) <= 2 &&
+                        t.isTechInList(affordableTech, 'attack')
+                    ) {
+                        techChoice = 'attack';
+                        break;
+                    } else if (
+                        q.getApTechLevel('defense', ap) <= 2 &&
+                        t.isTechInList(affordableTech, 'attack')
+                    ) {
+                        techChoice = 'defense';
+                        break;
+                    } else if (t.isTechInList(affordableTech, 'tactics')) {
+                        techChoice = 'tactics'
+                        break;
+                    }
+                case(6):
+                    if (
+                        t.isTechInList(affordableTech, 'cloak') &&
+                        !humanState.isHumanHasScannerTech &&
+                        !humanState.humanScannerLevel >= 2
+                    ) {
+                        techChoice = 'cloaking';
+                        break;
+                    }
+                case(7):
+                    if (t.isTechInList(affordableTech, 'scanner')) {
+                        techChoice = 'scanner';
+                        break;
+                    }
+                case(8):
+                    if (t.isTechInList(affordableTech, 'fighter')) {
+                        techChoice = 'fighter';
+                        break;
+                    }
+                case(9):
+                    if (t.isTechInList(affordableTech, 'point_defense')) {
+                        techChoice = 'point_defense'
+                        break;
+                    }
+                case(10):
+                    if (t.isTechInList(affordableTech, 'mine_sweep')) {
+                        techChoice = 'mine_sweep';
+                        break;
+                    }
+                default:
+                    techChoice = 'reroll';
+                    break;
+            }
+
+            if ( techChoice == 'reroll' ) {
+                continue;
+            }
+
+            q.buyApTechUpgrade( techChoice, ap );
+            affordableTech = q.getAvailableTechForTechNameList(candidateTech, ap);
+        }
+    }
+
+    /**
+     * Consider upgrading ship size and, if appropriate, execute upgrade.
+     * @param ap : AP
+     */
+    maybeUpgradeApShipSize = (ap) => {
+        const apShipSizeLevel = q.getApTechLevel('ship_size', ap);
+
+        if ( apShipSizeLevel <= 6 ) {
+            let shipUpgradeRange = new DieRange();
+            switch( apShipSizeLevel ) {
+                case 1:
+                    shipUpgradeRange = new DieRange(1,10);
+                    break;
+                case 2:
+                    shipUpgradeRange = new DieRange(1,7);
+                    break;
+                case 3:
+                    shipUpgradeRange = new DieRange(1,6);
+                    break;
+                case 4:
+                    shipUpgradeRange = new DieRange(1,5);
+                    break;
+                case 5:
+                    shipUpgradeRange = new DieRange(1,3);
+                    break;
+                default:
+                    shipUpgradeRange = null;
+                    break;
+            }
+
+            if ( shipUpgradeRange && this.isNumberInRange(this.d10(), shipUpgradeRange)) {
+                ApQuery.getInstance().buyApTechUpgrade('ship_size', ap);
+            }
+        }
     }
 }

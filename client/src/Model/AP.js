@@ -1,6 +1,7 @@
 import {AppliedTech} from "./AppliedTech";
 import {ApFleet} from "./ApFleet";
 import {PendingEconAddition} from "./PendingEconAddition";
+import {ApQuery} from "../Service/ApQuery";
 
 export class AP {
     id = 0;
@@ -28,5 +29,9 @@ export class AP {
         this.fleets = [];
         this.addEconOnRound = [];
         this.difficultyIncrement = difficultyIncrement;
+
+        const apq = ApQuery.getInstance();
+        apq.setApTechLevel( 'mines', 1, this );
+        apq.setApTechLevel( 'move', 1, this );
     }
 }

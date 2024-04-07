@@ -6,6 +6,18 @@ export class ApFleets extends Component {
         super(props);
     }
 
+    /**
+     * Upgrade tech, pick out ships, inform the user and release the fleet.
+     *
+     * @param fleet : ApFleet
+     * @param humanState : HumanState
+     * @param ap : AP
+     * @param fleetIndex : number
+     */
+    releaseFleet = (fleet, humanState, ap, fleetIndex) => {
+
+    }
+
     render = () => {
         return (
             <div>
@@ -16,6 +28,7 @@ export class ApFleets extends Component {
                         <th>#</th>
                         <th>CP</th>
                         <th>Raider</th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -26,9 +39,11 @@ export class ApFleets extends Component {
                                 <td>{index}</td>
                                 <td>{fleet.cp}</td>
                                 {fleet.isRaider ? (<td>Y</td>) : (<td>N</td>)}
+                                <td><button onClick={() => this.releaseFleet(fleet, this.props.humanState, this.props.ap, index)}>Release</button></td>
                             </tr>
                         )
                     )}
+
                     </tbody>
                 </table>
             </div>

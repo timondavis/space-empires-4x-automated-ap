@@ -46,6 +46,13 @@ export class ApFormRow extends Component {
                     >
                     </ShowDiceRange>
                 </td>
+                <td>
+                    <ul>
+                        {this.props.ap.purchasedTech.map((item) =>
+                            (<li>{item.name} - {item.level}</li>)
+                        )}
+                    </ul>
+                </td>
             </tr>
         )
     }
