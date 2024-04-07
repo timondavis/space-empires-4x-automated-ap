@@ -47,7 +47,10 @@ export class ApForm extends Component {
             case 'increment_round':
 
                 history = [ ...state.apHistory ];
-                history.push( {...this.props.ap} );
+                history.push({
+                    ...this.props.ap,
+                    purchasedTech: [...this.props.ap.purchasedTech]
+                });
                 const newAp = { ...this.props.ap };
 
                 const newEconTurn = newAp.econTurn + 1;
@@ -106,6 +109,7 @@ export class ApForm extends Component {
             ap.econ = this.props.ap.econ;
             ap.tech = this.props.ap.tech;
             ap.fleet = this.props.ap.fleet;
+            ap.purchasedTech = this.props.ap.purchasedTech;
             components.push(
                 <ApFormRow
                     key={"turn-id-" + i}

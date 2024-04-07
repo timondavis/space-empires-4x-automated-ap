@@ -18,7 +18,7 @@ export class ApFleets extends Component {
     releaseFleet = (fleet, humanState, ap, fleetIndex) => {
         const adjustedAp = ApDecisionService.getInstance().releaseFleet( fleet, humanState, { ...ap } );
         adjustedAp.currentFleets.splice(fleetIndex, 1);
-        this.props.apUpdateCallback(ap);
+        this.props.apUpdateCallback(adjustedAp);
     }
 
     render = () => {
