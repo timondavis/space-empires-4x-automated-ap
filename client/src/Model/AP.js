@@ -16,7 +16,6 @@ export class AP {
     fleets = [ new ApFleet ];
     addEconOnRound = [new PendingEconAddition()];
 
-
     /**
      *
      * @param id : number Incremental ID
@@ -33,5 +32,6 @@ export class AP {
         const apq = ApQuery.getInstance();
         apq.setApTechLevel( 'mines', 1, this );
         apq.setApTechLevel( 'move', 1, this );
+        apq.setApTechLevel( 'ship_size', 1, this);
     }
 }

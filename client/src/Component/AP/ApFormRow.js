@@ -49,7 +49,7 @@ export class ApFormRow extends Component {
                 <td>
                     <ul>
                         {this.props.ap.purchasedTech.map((item) =>
-                            (<li>{item.name} - {item.level}</li>)
+                            (<li key={item.name}>{item.name} - {item.level}</li>)
                         )}
                     </ul>
                 </td>

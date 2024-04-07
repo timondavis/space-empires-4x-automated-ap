@@ -1,4 +1,5 @@
 import {Component} from "react";
+import {ApDecisionService} from "../../Service/ApDecisionService";
 
 export class ApFleets extends Component {
 
@@ -15,7 +16,9 @@ export class ApFleets extends Component {
      * @param fleetIndex : number
      */
     releaseFleet = (fleet, humanState, ap, fleetIndex) => {
-
+        const adjustedAp = ApDecisionService.getInstance().releaseFleet( fleet, humanState, { ...ap } );
+        adjustedAp.currentFleets.splice(fleetIndex, 1);
+        this.props.apUpdateCallback(ap);
     }
 
     render = () => {

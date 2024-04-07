@@ -199,6 +199,7 @@ export class ApDecisionService {
      */
     releaseFleet = (fleet, humanState, ap) => {
         ap = this.upgradeApTech( humanState, ap );
+        return ap;
     }
 
     /**
@@ -319,6 +320,8 @@ export class ApDecisionService {
             q.buyApTechUpgrade( techChoice, ap );
             affordableTech = q.getAvailableTechForTechNameList(candidateTech, ap);
         }
+
+        return ap;
     }
 
     /**
@@ -326,6 +329,7 @@ export class ApDecisionService {
      * @param ap : AP
      */
     maybeUpgradeApShipSize = (ap) => {
+        const q = ApQuery.getInstance();
         const apShipSizeLevel = q.getApTechLevel('ship_size', ap);
 
         if ( apShipSizeLevel <= 6 ) {

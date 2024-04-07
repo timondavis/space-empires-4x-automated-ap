@@ -101,9 +101,11 @@ export class ApQuery {
      */
     getAvailableTechForTechNameList( techNameList, ap ) {
         const result = [];
+        const ts = TechService.getInstance();
         let tech = null;
         techNameList.forEach((techName) => {
-            tech = TechService.getInstance().findTech(new TechRequirement(techName, this.getApTechLevel(name, ap) + 1))
+            tech = ts.findTech(
+                new TechRequirement(techName, this.getApTechLevel(techName, ap) + 1))
             if ( tech && ap.tech > tech.cost ) {
                 result.push(tech);
             }

@@ -8,11 +8,11 @@ const indexTechList = () => {
     let row = null;
 
     Object.keys(techList).forEach((key) => {
-        row = list[key];
-        if ( ! costsByClass.hasOwnProperty(row.class)) {
-            costsByClass[row.class] = {levels: []}
+        row = techList[key];
+        if ( ! list.hasOwnProperty(row.class)) {
+            list[row.class] = {levels: []}
         }
-        costsByClass[row.class].levels[row.level] = row;
+        list[row.class].levels[row.level] = row;
     });
 
     return list;
