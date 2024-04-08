@@ -186,13 +186,13 @@ export class ApQuery {
 
     /**
      * Get a count of a given type of ship in a given fleet.
-     * @param shipName : string
+     * @param shipType : string
      * @param fleet : ApFleet
      */
-    countShipsInFleet = (shipName, fleet) => {
+    countShipsInFleet = (shipType, fleet) => {
         let ships = 0;
         fleet.ships.forEach((ship) => {
-           if ( ship.name === shipName ) {
+           if ( ship.name === shipType ) {
                ships++;
            }
         });

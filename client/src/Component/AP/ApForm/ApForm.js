@@ -137,7 +137,6 @@ export class ApForm extends Component {
             adjustedAp.addEconOnRound.forEach((val) => {
                 for (let i = val.round; i < gameLength; i++) {
                     adjustedEconTable.rows[i].extraEcon += val.points;
-                    console.log(val.points);
                 }
             })
 

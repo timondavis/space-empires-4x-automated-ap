@@ -42,7 +42,7 @@ export function FleetModal({apId}) {
             <h3>Ships Launching</h3>
             <ul>
                 {ships().map((ship) =>
-                    <li> {ship.name} ({ship.type}) - {ship.count}</li>
+                    <li key={ship.type}> {ship.name} ({ship.type}) - {ship.count}</li>
                 )}
             </ul>
             <button className={"close-button"} onClick={() => closeModal()}>Close</button>

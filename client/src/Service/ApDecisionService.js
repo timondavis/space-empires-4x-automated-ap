@@ -319,7 +319,7 @@ export class ApDecisionService {
             }
 
             if ( techChoice === 'reroll' ) {
-                continue;
+                return ap;
             }
 
             q.buyApTechUpgrade( techChoice, ap );
@@ -493,7 +493,7 @@ export class ApDecisionService {
     }
 
     /**
-     * Buy a balaced fleet for the AP
+     * Buy a balanced fleet for the AP
      *
      * @param fleet : ApFleet
      * @param ap : AP
@@ -519,6 +519,10 @@ export class ApDecisionService {
             candidates = candidates.filter((ship) => {
                 return ship.maxAttack >= apAttack && ship.maxDefense >= apDefense;
             })
+        }
+
+        if ( fleet.cp >= 6 ) {
+            this.buyMostExpensiveFleet(fleet, ap);
         }
     }
 
