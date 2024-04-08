@@ -1,4 +1,4 @@
-import {ShowDiceRange} from "../ShowDiceRange";
+import {ShowDiceRange} from "../../ShowDiceRange/ShowDiceRange";
 import {Component} from "react";
 
 export class ApFormRow extends Component {

@@ -1,12 +1,13 @@
 import logo from './logo.svg';
 import './App.css';
-import {HumanStateForm} from "./Component/HumanStateForm";
-import {ApForm} from "./Component/AP/ApForm";
+import {HumanStateForm} from "./Component/HumanStateForm/HumanStateForm";
+import {ApForm} from "./Component/AP/ApForm/ApForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {useState} from "react";
 import {AP} from "./Model/AP";
-import {ApFleets} from "./Component/AP/ApFleets";
+import {ApFleets} from "./Component/AP/ApFleets/ApFleets";
 import {HumanState} from "./Model/HumanState";
+import {FleetModalProvider} from "./Provider/FleetModalProvider";
 
 function App() {
 
@@ -39,8 +40,14 @@ function App() {
     return (
         <div className="App">
             <HumanStateForm humanState={humanState} formUpdateCallback={ (data) => setHumanState(data)}></HumanStateForm>
-            <ApForm humanState={humanState} ap={apState[0]} apUpdateCallback={(data) => updateAp(data)}></ApForm>
-            <ApFleets humanState={humanState} ap={apState[0]} apUpdateCallback={(data) => updateAp(data)}></ApFleets>
+            <FleetModalProvider>
+                <ApForm
+                    humanState={humanState}
+                    ap={apState[0]}
+                    apUpdateCallback={(data) => updateAp(data)
+                    }></ApForm>
+                <ApFleets humanState={humanState} ap={apState[0]} apUpdateCallback={(data) => updateAp(data)}></ApFleets>
+            </FleetModalProvider>
         </div>
     );
 }

@@ -1,10 +1,11 @@
 import {Component} from "react";
-import {AP} from "../../Model/AP";
-import {EconRollTable} from "../../Model/EconRollTable"
-import {FleetLaunchTable} from "../../Model/FleetLaunchTable";
-import {ApFormRow} from "./ApFormRow";
-import {ApDecisionService} from "../../Service/ApDecisionService";
-import {Modal} from "../Modal";
+import {AP} from "../../../Model/AP";
+import {EconRollTable} from "../../../Model/EconRollTable"
+import {FleetLaunchTable} from "../../../Model/FleetLaunchTable";
+import {ApFormRow} from "../ApFormRow/ApFormRow";
+import {ApDecisionService} from "../../../Service/ApDecisionService";
+import {FleetModal} from "../../FleetModal/FleetModal";
+import "./ApForm.css";
 
 const gameLength = 20;
 
@@ -15,8 +16,7 @@ const initialState = {
     launchTable : new FleetLaunchTable(),
     showHistory: false,
     showFuture: false,
-    showModal : false,
-    modalContent : ''
+    isModalVisible : false,
 }
 
 export class ApForm extends Component {
@@ -63,19 +63,6 @@ export class ApForm extends Component {
                 return {
                     ...state,
                     apHistory: history
-                };
-
-            case 'show_modal':
-
-                return {
-                    ...state,
-                    showModal: true
-                };
-
-            case 'hide_modal':
-                return {
-                    ...state,
-                    hideModal: true
                 };
 
             default: break;
@@ -180,7 +167,7 @@ export class ApForm extends Component {
 
     render() {
         return(
-            <div>
+            <div className={"ApForm"}>
                 <table>
                     <thead>
                     <tr>
@@ -200,9 +187,10 @@ export class ApForm extends Component {
                     </thead>
                     <tbody>
                     {this.state.showHistory && this.history()}
-                    < tr >
+                    < tr>
                         <td colSpan="11">
-                            <button onClick={() => this.dispatch((this.state.showHistory) ? 'hide_history' : 'show_history')}>
+                            <button
+                                onClick={() => this.dispatch((this.state.showHistory) ? 'hide_history' : 'show_history')}>
                                 {this.state.showHistory && <>Hide History</>}
                                 {!this.state.showHistory && <>Show History</>}
                             </button>
@@ -216,9 +204,10 @@ export class ApForm extends Component {
                     ></ApFormRow>
                     <tr>
                         <td colSpan="11">
-                            <button onClick={() => this.dispatch((this.state.showFuture) ? 'hide_future' : 'show_future')}>
-                               {this.state.showFuture && <>Hide Later Turns</>}
-                               {!this.state.showFuture && <>Show Later Turns</>}
+                            <button
+                                onClick={() => this.dispatch((this.state.showFuture) ? 'hide_future' : 'show_future')}>
+                                {this.state.showFuture && <>Hide Later Turns</>}
+                                {!this.state.showFuture && <>Show Later Turns</>}
                             </button>
                         </td>
                     </tr>
@@ -232,11 +221,8 @@ export class ApForm extends Component {
                     <button onClick={() => this.rollEcon()}>Roll Econ</button>
                     <button onClick={() => this.rollFleet()}>Roll Fleet</button>
                 </div>
-
-                {this.state.showModal && (
-                    <Modal content={this.state.modalContent}></Modal>
-                )}
-           </div>
-       );
+                <FleetModal apId={this.props.ap.id}></FleetModal>
+            </div>
+        );
     }
 }
