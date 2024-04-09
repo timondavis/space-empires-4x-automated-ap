@@ -2,7 +2,6 @@ import {PendingEconAddition} from "../Model/PendingEconAddition";
 import {ApFleet} from "../Model/ApFleet";
 import {ApQuery} from "./ApQuery";
 import {ShipService} from "./ShipService";
-import {ApTechHelper} from "../Helper/ApTechHelper";
 import {ApFleetHelper} from "../Helper/ApFleetHelper";
 import {ApAndHumanComparisonHelper} from "../Helper/ApAndHumanComparisonHelper";
 import {DieHelper} from "../Helper/DieHelper";
@@ -11,7 +10,6 @@ import {EconRollResults} from "../Model/EconRollResults";
 let _instance = null;
 
 const humanCompareHelper = new ApAndHumanComparisonHelper();
-const fleetHelper = new ApFleetHelper();
 const dieHelper = new DieHelper();
 
 export class ApDecisionService {
@@ -90,6 +88,7 @@ export class ApDecisionService {
      * @param humanState : HumanState
      */
     rollFleet = (ap, fleetLaunchTable, humanState ) => {
+        const fleetHelper = new ApFleetHelper();
         const fleetLaunchRange = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)];
         let roll = dieHelper.d10();
 
@@ -122,7 +121,7 @@ export class ApDecisionService {
      * @return ApFleet
      */
     releaseFleet = (fleetIndex, humanState, ap) => {
-        const ss = ShipService.getInstance();
+        const fleetHelper = new ApFleetHelper();
         const fleet = ap.currentFleets[fleetIndex];
         let updatedAp = ApQuery.getInstance().upgradeApTech( humanState, { ...ap } );
         updatedAp = fleetHelper.buyShips( fleet, humanState, updatedAp, { ...ap } );
