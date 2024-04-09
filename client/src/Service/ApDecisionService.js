@@ -2,57 +2,19 @@ import {PendingEconAddition} from "../Model/PendingEconAddition";
 import {ApFleet} from "../Model/ApFleet";
 import {ApQuery} from "./ApQuery";
 import {TechRequirement} from "../Model/TechReqiurement";
-import {TechService} from "./TechService";
 import {DieRange} from "../Model/DieRange";
 import {ShipService} from "./ShipService";
+import {ApTechHelper} from "../Helper/ApTechHelper";
+import {ApFleetHelper} from "../Helper/ApFleetHelper";
+import {ApAndHumanComparisonHelper} from "../Helper/ApAndHumanComparisonHelper";
+import {DieHelper} from "../Helper/DieHelper";
 
 let _instance = null;
 
-/**
- * Are the human's demonstrated Point Defense systems tech inferior to the AP's Fighting Systems?
- *
- * @param ap : AP
- * @param humanState : HumanState
- *
- * @reutrn boolean
- */
-const isHumanPointDefenseInferiorToApFighters = (ap, humanState) => {
-
-    const apFighterLevel = ApQuery.getInstance().getApTechLevel( 'fighter', ap )
-    if (  apFighterLevel > 0 ) {
-        if ( !humanState.isHumanShowedPointDefense ) {
-            return true;
-        }
-        else if (humanState.humanPointDefenseLevel < apFighterLevel ) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/**
- * Are the Human's demonstrated Scanner abilities inferior to the cloaking abilities of the AP?
- *
- * @param ap : AP
- * @param humanState : HumanState
- *
- * @return boolean
- */
-const isHumanScannersInferiorToApCloaking = (ap, humanState) => {
-
-    const apCloakingLevel = ApQuery.getInstance().getApTechLevel( 'cloaking', ap );
-
-    if (apCloakingLevel > 0) {
-        if (!humanState.isHumanHasScannerTech) {
-            return true;
-        } else if ( humanState.humanScannerLevel < apCloakingLevel ) {
-            return true;
-        }
-    }
-
-    return false;
-}
+const humanCompareHelper = new ApAndHumanComparisonHelper();
+const fleetHelper = new ApFleetHelper();
+const techHelper = new ApTechHelper();
+const dieHelper = new DieHelper();
 
 export class ApDecisionService {
 
@@ -64,14 +26,11 @@ export class ApDecisionService {
         return _instance;
     }
 
-    nd10 = (n) => {
-        return Math.floor(Math.random() * 10 ) + 1;
-    }
-
-    d10 = () => {
-        return this.nd10(1);
-    }
-
+    /**
+     * After the 20th turn, continue rotation between 19th and 20th rows on the Econ table.
+     * @param index
+     * @returns {number}
+     */
     adjustedRowIndex = ( index ) => {
 
         if ( index < 0 ) {
@@ -85,19 +44,7 @@ export class ApDecisionService {
         return index;
     }
 
-    /**
-     * Is rolled number in die range?
-     *
-     * @param number
-     * @param dieRange : DieRange
-     */
-    isNumberInRange = ( number, dieRange ) => {
-        if ( ! dieRange ) {
-            return false;
-        }
 
-        return (number >= dieRange.min && number <= dieRange.max );
-    }
 
     /**
      * Roll the AP Econ and return the adjusted model.
@@ -118,12 +65,12 @@ export class ApDecisionService {
          let roll = 0;
 
          for( let i = 0 ; i < numberOfRolls ; i++ ) {
-             roll = this.d10();
+             roll = dieHelper.d10();
 
-             econResults += this.isNumberInRange(roll, econRow.econ ) ? 1 : 0;
-             fleetResults += this.isNumberInRange(roll, econRow.fleet) ? 1 : 0;
-             techResults += this.isNumberInRange(roll, econRow.tech) ? 1 : 0;
-             defResults += this.isNumberInRange(roll, econRow.def) ? 1 : 0;
+             econResults += dieHelper.isNumberInRange(roll, econRow.econ ) ? 1 : 0;
+             fleetResults += dieHelper.isNumberInRange(roll, econRow.fleet) ? 1 : 0;
+             techResults += dieHelper.isNumberInRange(roll, econRow.tech) ? 1 : 0;
+             defResults += dieHelper.isNumberInRange(roll, econRow.def) ? 1 : 0;
          }
 
          if ( econResults > 0 ) {
@@ -150,28 +97,28 @@ export class ApDecisionService {
      */
     rollFleet = (ap, fleetLaunchTable, humanState ) => {
         const fleetLaunchRange = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)];
-        let roll = this.d10();
+        let roll = dieHelper.d10();
 
         // Reduce roll by 2 if ap has superior Fighters against human Point Defense & sufficient fleet size.
-        if ( isHumanPointDefenseInferiorToApFighters(ap, humanState) && ap.fleet >= 25 ) {
+        if ( humanCompareHelper.isHumanPointDefenseInferiorToApFighters(ap, humanState) && ap.fleet >= 25 ) {
             roll = Math.max(1, roll - 2);
         }
 
         // Reduce roll by 2 if ap has superior cloaking compared to human scanner tech & sufficient fleet size.
-        if ( isHumanScannersInferiorToApCloaking(ap, humanState) && ap.fleet >= 12) {
+        if ( humanCompareHelper.isHumanScannersInferiorToApCloaking(ap, humanState) && ap.fleet >= 12) {
             roll = Math.max(1, roll -2 );
         }
 
         if ( !fleetLaunchRange?.min ) { return ap; }
 
-        if ( this.isNumberInRange(roll, fleetLaunchRange) && ap.fleet >= 6) {
+        if ( dieHelper.isNumberInRange(roll, fleetLaunchRange) && ap.fleet >= 6) {
 
             // Prepare new fleet
             const fleet = new ApFleet();
 
             fleet.cp = ap.fleet;
             ap.fleet = 0;
-            fleet.isRaider = (isHumanScannersInferiorToApCloaking(ap, humanState) && fleet.cp >= 12);
+            fleet.isRaider = (humanCompareHelper.isHumanScannersInferiorToApCloaking(ap, humanState) && fleet.cp >= 12);
             ap.currentFleets.push(fleet);
 
             const currentLevel = ApQuery.getInstance().getApTechLevel('move', ap);
@@ -181,7 +128,7 @@ export class ApDecisionService {
             // 2 in 5 chance that move tech is upgraded on fleet launch.
             key.class = 'move';
             key.level = newLevel;
-            if (this.isNumberInRange(this.d10(), new DieRange(1,4))) {
+            if (dieHelper.isNumberInRange(dieHelper.d10(), new DieRange(1,4))) {
                 ApQuery.getInstance().buyApTechUpgrade('move', ap);
             }
         }
@@ -216,154 +163,28 @@ export class ApDecisionService {
      * @return AP
      */
     upgradeApTech = (humanState, ap) => {
-        const q = ApQuery.getInstance();
-        const t = TechService.getInstance();
-        const apPointDefenseLevel = q.getApTechLevel('point_defense', ap);
-        const apMineSweepLevel = q.getApTechLevel('mine_sweep', ap);
-        const apScannersLevel = q.getApTechLevel( 'scanner', ap);
-        const apFighterLevel = q.getApTechLevel( 'fighter', ap);
+        techHelper.maybeBuyPointDefense(ap, humanState);
+        techHelper.maybeBuyMineSweep(ap, humanState);
+        techHelper.maybeBuyScanners(ap, humanState);
+        techHelper.maybeBuyShipSizeUpgrade(ap);
+        techHelper.maybeBuyFighterUpgrade(ap, humanState);
 
-        if ( humanState.isHumanShowedRaiders && apPointDefenseLevel === 0) {
-            q.buyApTechUpgrade('point_defense', ap );
-        }
+        try {
+            let keepPurchasing = false;
+            let loopEscape = 0;
+            do {
+                keepPurchasing = techHelper.buyTechUpgradeFromTable( ap, humanState );
+                loopEscape++;
 
-        if ( humanState.isHumanUsedMines && apMineSweepLevel === 0 ) {
-            q.buyApTechUpgrade('mine_sweep',  ap );
-        }
-
-        if ( humanState.isHumanShowedRaiders && humanState.humanRaiderLevel >= apScannersLevel ) {
-            if( this.isNumberInRange(this.d10(), new DieRange(1,4))) {
-               q.buyApTechUpgrade( 'scanner' );
-            }
-        }
-
-        this.maybeUpgradeApShipSize(ap);
-
-        if (apFighterLevel > 0 && humanState.isHumanShowedPointDefense === false) {
-            if ( this.isNumberInRange(this.d10(), new DieRange(1,6))) {
-                q.buyApTechUpgrade( 'fighter', ap );
-            }
-        }
-
-        const candidateTech = ['attack', 'defense', 'tactics', 'cloaking', 'scanner', 'fighter', 'point_defense', 'mine_sweep' ]
-        let affordableTech = q.getAvailableTechForTechNameList(candidateTech, ap);
-        let techRoll = 0;
-        let techChoice = '';
-
-        while (affordableTech.length > 0) {
-            techRoll = this.d10();
-            techChoice = '';
-
-            switch(techRoll) {
-                case(1):
-                case(2):
-                    if (t.isTechInList(affordableTech, 'attack')) {
-                        techChoice = 'attack;'
-                        break;
-                    }
-                case(3):
-                case(4):
-                    if (t.isTechInList(affordableTech, 'defense')) {
-                        techChoice = 'defense';
-                        break;
-                    }
-                case(5):
-                    if (
-                        q.getApTechLevel('attack', ap) <= 2 &&
-                        t.isTechInList(affordableTech, 'attack')
-                    ) {
-                        techChoice = 'attack';
-                        break;
-                    } else if (
-                        q.getApTechLevel('defense', ap) <= 2 &&
-                        t.isTechInList(affordableTech, 'attack')
-                    ) {
-                        techChoice = 'defense';
-                        break;
-                    } else if (t.isTechInList(affordableTech, 'tactics')) {
-                        techChoice = 'tactics'
-                        break;
-                    }
-                case(6):
-                    if (
-                        t.isTechInList(affordableTech, 'cloak') &&
-                        !humanState.isHumanHasScannerTech &&
-                        !humanState.humanScannerLevel >= 2
-                    ) {
-                        techChoice = 'cloaking';
-                        break;
-                    }
-                case(7):
-                    if (t.isTechInList(affordableTech, 'scanner')) {
-                        techChoice = 'scanner';
-                        break;
-                    }
-                case(8):
-                    if (t.isTechInList(affordableTech, 'fighter')) {
-                        techChoice = 'fighter';
-                        break;
-                    }
-                case(9):
-                    if (t.isTechInList(affordableTech, 'point_defense')) {
-                        techChoice = 'point_defense'
-                        break;
-                    }
-                case(10):
-                    if (t.isTechInList(affordableTech, 'mine_sweep')) {
-                        techChoice = 'mine_sweep';
-                        break;
-                    }
-                default:
-                    techChoice = 'reroll';
-                    break;
-            }
-
-            if ( techChoice === 'reroll' ) {
-                return ap;
-            }
-
-            q.buyApTechUpgrade( techChoice, ap );
-            affordableTech = q.getAvailableTechForTechNameList(candidateTech, ap);
+                if ( loopEscape >= 100 ) {
+                    throw 'Infinite Loop Error';
+                }
+            } while ( keepPurchasing);
+        } catch( ex ) {
+            console.warn( 'Tech Upgrade Loop exceeded escape threshold.' );
         }
 
         return ap;
-    }
-
-    /**
-     * Consider upgrading ship size and, if appropriate, execute upgrade.
-     * @param ap : AP
-     */
-    maybeUpgradeApShipSize = (ap) => {
-        const q = ApQuery.getInstance();
-        const apShipSizeLevel = q.getApTechLevel('ship_size', ap);
-
-        if ( apShipSizeLevel <= 6 ) {
-            let shipUpgradeRange = new DieRange();
-            switch( apShipSizeLevel ) {
-                case 1:
-                    shipUpgradeRange = new DieRange(1,10);
-                    break;
-                case 2:
-                    shipUpgradeRange = new DieRange(1,7);
-                    break;
-                case 3:
-                    shipUpgradeRange = new DieRange(1,6);
-                    break;
-                case 4:
-                    shipUpgradeRange = new DieRange(1,5);
-                    break;
-                case 5:
-                    shipUpgradeRange = new DieRange(1,3);
-                    break;
-                default:
-                    shipUpgradeRange = null;
-                    break;
-            }
-
-            if ( shipUpgradeRange && this.isNumberInRange(this.d10(), shipUpgradeRange)) {
-                ApQuery.getInstance().buyApTechUpgrade('ship_size', ap);
-            }
-        }
     }
 
     /**
@@ -386,7 +207,7 @@ export class ApDecisionService {
         if (apq.getApTechLevel( 'fighter', ap ) > 0) {
             const carrier = ss.getShipByCode('CV');
             const fighter = ss.getShipByCode('F');
-            if ( ! humanState.isHumanShowedPointDefense || this.isNumberInRange(this.d10(), new DieRange(1,4))) {
+            if ( ! humanState.isHumanShowedPointDefense || dieHelper.isNumberInRange(dieHelper.d10(), new DieRange(1,4))) {
                while ( fleet.cp >= (carrier.cpCost + (fighter.cpCost * 3)) ) {
                    apq.buyApShip(carrier, ap, fleet);
                    apq.buyApShip(fighter, ap, fleet);
@@ -408,7 +229,7 @@ export class ApDecisionService {
 
         this.buyMostExpensiveShipAvailable(fleet, ap);
 
-        let roll = this.d10();
+        let roll = dieHelper.d10();
         let oneOffScoutsAssessed = false;
         while( fleet.cp >= 6 ) {
 

@@ -7,12 +7,11 @@ const indexTechList = () => {
     const list = {};
     let row = null;
 
-    Object.keys(techList).forEach((key) => {
-        row = techList[key];
-        if ( ! list.hasOwnProperty(row.class)) {
-            list[row.class] = {levels: []}
+    techList.forEach( tech => {
+        if ( ! list.hasOwnProperty(tech.class)) {
+            list[tech.class] = {levels: []}
         }
-        list[row.class].levels[row.level] = row;
+        list[tech.class].levels[tech.level] = tech;
     });
 
     return list;
@@ -35,6 +34,7 @@ export class TechService {
 
     /**
      * @param techRequirement : TechRequirement
+     * @return {Tech}
      */
     findTech = (techRequirement) => {
         const level = techRequirement.level;
@@ -48,7 +48,7 @@ export class TechService {
     }
 
     /**
-     * @param list : {Object[]}
+     * @param list : {Tech[]}
      * @param list[].label : string
      * @param list[].class : string
      * @param list[].level : number
@@ -60,7 +60,7 @@ export class TechService {
     }
 
     /**
-     * @param list : {Object[]}
+     * @param list : {Tech[]}
      * @param list[].label : string
      * @param list[].class : string
      * @param list[].level : number
