@@ -4,8 +4,6 @@ import {DieHelper} from "./DieHelper";
 import {DieRange} from "../Model/DieRange";
 
 const dieHelper = new DieHelper();
-const apq = ApQuery.getInstance();
-const ts = TechService.getInstance();
 const defaultTechCandidates = ['attack', 'defense', 'tactics', 'cloaking', 'scanner', 'fighter', 'point_defense', 'mine_sweep' ];
 
 export class ApTechHelper {
@@ -19,6 +17,9 @@ export class ApTechHelper {
      * @return boolean Returns FALSE if inability to buy more tech was detected, TRUE otherwise.
      */
     buyTechUpgradeFromTable(ap, humanState) {
+        const apq = ApQuery.getInstance();
+        const ts = TechService.getInstance();
+
         let techRoll = dieHelper.d10();
         let techChoice = '';
         const affordableTech = apq.getAvailableTechForTechNameList(defaultTechCandidates, ap);
@@ -105,6 +106,7 @@ export class ApTechHelper {
      * @param humanState : HumanState
      */
     maybeBuyPointDefense = (ap, humanState) => {
+        const apq = ApQuery.getInstance();
         if (humanState.isHumanShowedRaiders && apq.getApTechLevel('point_defense', ap) === 0) {
             apq.buyApTechUpgrade('point_defense', ap);
         }
@@ -117,6 +119,7 @@ export class ApTechHelper {
      * @param humanState : HumanState
      */
     maybeBuyMineSweep = (ap, humanState) => {
+        const apq = ApQuery.getInstance();
         if (humanState.isHumanUsedMines && apq.getApTechLevel('mine_sweep', ap) === 0) {
             apq.buyApTechUpgrade('mine_sweep', ap);
         }
@@ -129,9 +132,10 @@ export class ApTechHelper {
      * @param humanState
      */
     maybeBuyScanners = (ap, humanState) => {
+        const apq = ApQuery.getInstance();
         if (humanState.isHumanShowedRaiders && humanState.humanRaiderLevel >= apq.getApTechLevel('scanner', ap)) {
             if (dieHelper.isNumberInRange(dieHelper.d10(), new DieRange(1, 4))) {
-                apq.buyApTechUpgrade('scanner');
+                apq.buyApTechUpgrade('scanner', ap);
             }
         }
     }
@@ -142,6 +146,7 @@ export class ApTechHelper {
      * @param ap : AP
      */
     maybeBuyShipSizeUpgrade = (ap) => {
+        const apq = ApQuery.getInstance();
         const apShipSizeLevel = apq.getApTechLevel('ship_size', ap);
 
         if (apShipSizeLevel <= 6) {
@@ -179,6 +184,7 @@ export class ApTechHelper {
      * @param humanState : HumanState
      */
     maybeBuyFighterUpgrade = (ap, humanState) => {
+        const apq = ApQuery.getInstance();
         if (apq.getApTechLevel('fighter', ap) > 0 && humanState.isHumanShowedPointDefense === false) {
             if ( dieHelper.isNumberInRange(dieHelper.d10(), new DieRange(1,6))) {
                 apq.buyApTechUpgrade( 'fighter', ap );
