@@ -127,10 +127,14 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
 
     return(
         <div className={"ApForm"}>
-
             <div className={"container-fluid"}>
-                {showHistory && historyDisplay()}
                 <div className={"row"}>
+                    <div className={"col-12"}>
+                        <h1>{ap.color}</h1>
+                    </div>
+                </div>
+                {showHistory && historyDisplay()}
+                <div className={"row d-none"}>
                     <div className={"col-3"}>
                         <button
                             onClick={() => (showHistory) ? setShowHistory(false) : setShowHistory(true)}>
@@ -145,7 +149,7 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
                     launchRow={launchTable.rows[adjustedRowIndex()]}
                     econRow={econTable.rows[adjustedRowIndex()]}
                 ></ApFormRow>
-                <div className={"row"}>
+                <div className={"row d-none"}>
                     <div className={"col-3"}>
                         <button
                             onClick={() => (showFuture) ? setShowFuture(false) : setShowFuture(true)}>
@@ -158,9 +162,9 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
             </div>
 
             <div className={"row buttons"}>
-                <div className={"col-6"}>
-                    <button className="button" onClick={() => rollEcon()}>Roll Econ</button>
-                    <button className="button" onClick={() => raiseDefenseFleet()}>Raise Defense Fleet</button>
+                <div className={"col-12"}>
+                    <button className="btn btn-primary m-1" onClick={() => rollEcon()}>Roll Econ</button>
+                    <button className="btn btn-secondary" onClick={() => raiseDefenseFleet()}>Raise Defense Fleet</button>
                 </div>
             </div>
 

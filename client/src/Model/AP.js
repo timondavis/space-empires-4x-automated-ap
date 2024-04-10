@@ -19,13 +19,15 @@ export class AP {
      *
      * @param id : number Incremental ID
      * @param difficultyIncrement Multiple of 5.  5 = Easy, 10 = Medium, 15 = Hard.
+     * @param color : string
      */
-    constructor( id, difficultyIncrement = 5) {
+    constructor( id, difficultyIncrement = 5, color = 'green') {
         this.id = id;
         this.purchasedTech = [];
         this.currentFleets = [];
         this.addEconOnRound = [];
         this.difficultyIncrement = difficultyIncrement;
+        this.color = color;
 
         const apq = ApQuery.getInstance();
         apq.setApTechLevel( 'mines', 1, this );

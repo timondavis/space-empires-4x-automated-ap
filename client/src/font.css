@@ -1,0 +1,5 @@
+@font-face {
+    font-family: 'Jost';
+    src: local('Jost'), url('./Assets/Fonts/Jost/Jost-VariableFont_wght.ttf');
+    font-weight: 400;
+}

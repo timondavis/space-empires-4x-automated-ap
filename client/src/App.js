@@ -1,8 +1,9 @@
 import logo from './logo.svg';
+import "./font.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import {HumanStateForm} from "./Component/HumanStateForm/HumanStateForm";
 import {ApForm} from "./Component/AP/ApForm/ApForm";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import {useState} from "react";
 import {AP} from "./Model/AP";
 import {ApFleets} from "./Component/AP/ApFleets/ApFleets";

@@ -1,106 +1,92 @@
 import {ShowDiceRange} from "../../ShowDiceRange/ShowDiceRange";
 import {Component} from "react";
 import "./ApFormRow.css"
+import {ApFormRowEntry} from "./ApFormRowEntry/ApFormRowEntry";
+import {TechService} from "../../../Service/TechService";
+import {TechRequirement} from "../../../Model/TechReqiurement";
 
 export function ApFormRow({ap,econRow, launchRow}) {
+
+    /**
+     * Get the proper label for the AP Tech
+     *
+     * @param techName : string
+     * @param techLevel : number
+     */
+    const getTechLabel = ( techName, techLevel ) => {
+        const requirement = new TechRequirement(techName, techLevel);
+        const tech = TechService.getInstance().findTech(requirement);
+        return tech?.label;
+    }
 
     return (
         <dl className={"ApFormRow row"}>
 
-            <div>
-                <dt className={"col-6"}>Econ Turn</dt>
-                <dd className={"col-6"}>{ap.econTurn + 1}</dd>
-            </div>
+            <ApFormRowEntry dt={"Econ Turn"}  dd={ap.econTurn + 1}></ApFormRowEntry>
+            <ApFormRowEntry dt={"Econ Rolls"} dd={econRow?.econRolls}></ApFormRowEntry>
+            <ApFormRowEntry dt={"Extra Econ"} dd={econRow?.extraEcon}></ApFormRowEntry>
+            <ApFormRowEntry dt={"Fleet CP"}   dd={ap.fleet}></ApFormRowEntry>
+            <ApFormRowEntry dt={"Tech CP"}    dd={ap.tech}></ApFormRowEntry>
+            <ApFormRowEntry dt={"Defense CP"} dd={ap.defense}></ApFormRowEntry>
 
-            <div>
-                <dt className={"col-6"}>Econ Rolls</dt>
-                <dd className={"col-6"}>{econRow?.econRolls}</dd>
-            </div>
+            <ApFormRowEntry className={"d-none"} dt={"Fleet Launch Range"}
+                            dd={<ShowDiceRange
+                                min={launchRow?.min}
+                                max={launchRow?.max}>
+                                </ShowDiceRange>
+                            }>
+            </ApFormRowEntry>
 
-            <div>
-                <dt className={"col-6"}>Extra Econ</dt>
-                <dd className={"col-6"}>{econRow?.extraEcon}</dd>
-            </div>
+            <ApFormRowEntry className={"d-none"}
+                            dt={"Econ Range"}
+                            dd={
+                                <ShowDiceRange
+                                    min={econRow?.econ?.min}
+                                    max={econRow?.econ?.max} >
+                                </ShowDiceRange>
+                            }>
+            </ApFormRowEntry>
 
-            <div>
-                <dt className={"col-6"}>Fleet CP</dt>
-                <dd className={"col-6"}>{ap.fleet}</dd>
-            </div>
+            <ApFormRowEntry className={"d-none"}
+                            dt={"Fleet Range"}
+                            dd={
+                                <ShowDiceRange
+                                    min={econRow?.fleet?.min}
+                                    max={econRow?.fleet?.max} >
+                                </ShowDiceRange>
+                            }>
+            </ApFormRowEntry>
 
-            <div>
-                <dt className={"col-6"}>Tech CP</dt>
-                <dd className={"col-6"}>{ap.tech}</dd>
-            </div>
+            <ApFormRowEntry className={"d-none"}
+                            dt={"Tech Range"}
+                            dd={
+                                <ShowDiceRange
+                                    min={econRow?.tech?.min}
+                                    max={econRow?.tech?.max}
+                                >
+                                </ShowDiceRange>
+                            }>
+            </ApFormRowEntry>
 
-            <div>
-                <dt className={"col-6"}>Defense CP</dt>
-                <dd className={"col-6"}>{ap.defense}</dd>
-            </div>
+            <ApFormRowEntry className={"d-none"}
+                            dt={"Defense Range"}
+                            dd={
+                                <ShowDiceRange
+                                    min={econRow?.def?.min}
+                                    max={econRow?.def?.max}
+                                >
+                                </ShowDiceRange>
+                            }>
+            </ApFormRowEntry>
 
-            <div className={"d-none"}>
-                <dt className={"col-6"}>Fleet Launch Range</dt>
-                <dd className={"col-6"}>
-                    <ShowDiceRange
-                        min={launchRow?.min}
-                        max={launchRow?.max}>
-                    </ShowDiceRange>
-                </dd>
-            </div>
-
-            <div className={"d-none"}>
-                <dt className={"col-6"}>Econ Range</dt>
-                <dd className={"col-6"}>
-                    <ShowDiceRange
-                        min={econRow?.econ?.min}
-                        max={econRow?.econ?.max}
-                    >
-                    </ShowDiceRange>
-                </dd>
-            </div>
-
-            <div className={"d-none"}>
-                <dt className={"col-6"}>Fleet Range</dt>
-                <dd className={"col-6"}>
-                    <ShowDiceRange
-                        min={econRow?.fleet?.min}
-                        max={econRow?.fleet?.max}
-                    >
-                    </ShowDiceRange>
-                </dd>
-            </div>
-
-            <div className={"d-none"}>
-                <dt className={"col-6"}>Tech Range</dt>
-                <dd className={"col-6"}>
-                    <ShowDiceRange
-                        min={econRow?.tech?.min}
-                        max={econRow?.tech?.max}
-                    >
-                    </ShowDiceRange>
-                </dd>
-            </div>
-
-            <div className={"d-none"}>
-                <dt className={"col-6"}>Defense Range</dt>
-                <dd className={"col-6"}>
-                    <ShowDiceRange
-                        min={econRow?.def?.min}
-                        max={econRow?.def?.max}
-                    >
-                    </ShowDiceRange>
-                </dd>
-            </div>
-
-            <div className={"tech-list"}>
-                <dt className={"col-6"}>Purchased Tech</dt>
-                <dd className={"col-6"}>
-                    <ul>
-                        {ap.purchasedTech.map((item) =>
-                            (<li key={item.name}>{item.name} - {item.level}</li>)
-                        )}
-                    </ul>
-                </dd>
-            </div>
+            <ApFormRowEntry className={"tech-list"}
+                            dt={"Purchased Tech"}
+                            dd={<ul>
+                                {ap.purchasedTech.map((item) => {
+                                    return (<li key={item.name}>{getTechLabel(item.name, item.level)}</li>)
+                                })}
+                            </ul> }>
+            </ApFormRowEntry>
         </dl>
     );
 }
