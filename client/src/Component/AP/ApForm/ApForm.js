@@ -125,18 +125,6 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
         setAdjustedAp(nextAp);
     }
 
-    /**
-     * Move back in time by decrementing the round, thereby restoring the previous AP state.
-     */
-    const decrementRound = () => {
-        const history = [ ...apHistory ];
-        const lastRecord = history.pop();
-        if (ap.econTurn > 0) {
-            setApHistory(history);
-            setAdjustedAp(lastRecord);
-        }
-    }
-
     return(
         <div className={"ApForm"}>
             <table>
@@ -187,7 +175,6 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
             </table>
 
             <div className={"buttons"}>
-                <button onClick={() => decrementRound()}>&lt; UNDO</button>
                 <button onClick={() => rollEcon()}>Roll Econ</button>
                 <button onClick={() => raiseDefenseFleet()}>Raise Defense Fleet</button>
             </div>
