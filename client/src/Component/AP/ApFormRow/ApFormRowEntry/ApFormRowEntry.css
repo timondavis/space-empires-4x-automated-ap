@@ -1,0 +1,10 @@
+dt, dd {
+    position: relative;
+    margin-bottom: .5rem;
+}
+
+.toggle-folding {
+    position: absolute;
+    right: 0;
+    top: .75rem;
+}

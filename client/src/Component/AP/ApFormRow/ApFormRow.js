@@ -79,7 +79,7 @@ export function ApFormRow({ap,econRow, launchRow}) {
                             }>
             </ApFormRowEntry>
 
-            <ApFormRowEntry className={"tech-list"}
+            <ApFormRowEntry className={"tech-list"} isFolding={true}
                             dt={"Purchased Tech"}
                             dd={<ul>
                                 {ap.purchasedTech.map((item) => {
