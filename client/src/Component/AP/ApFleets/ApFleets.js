@@ -17,7 +17,7 @@ export function ApFleets({humanState, ap, apUpdateCallback}) {
      */
     const releaseFleet = (fleet, humanState, ap, fleetIndex) => {
         const adjustedAp = ApDecisionService.getInstance().releaseFleet( fleetIndex, humanState, { ...ap } );
-        setApAndFleet({ap: ap, fleet: fleet});
+        setApAndFleet({ap: adjustedAp, fleet: fleet});
         adjustedAp.currentFleets.splice(fleetIndex, 1);
         apUpdateCallback(adjustedAp);
     }

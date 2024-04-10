@@ -1,11 +1,10 @@
 import {PendingEconAddition} from "../Model/PendingEconAddition";
-import {ApFleet} from "../Model/ApFleet";
-import {ApQuery} from "./ApQuery";
-import {ShipService} from "./ShipService";
 import {ApFleetHelper} from "../Helper/ApFleetHelper";
 import {ApAndHumanComparisonHelper} from "../Helper/ApAndHumanComparisonHelper";
 import {DieHelper} from "../Helper/DieHelper";
 import {EconRollResults} from "../Model/EconRollResults";
+import {ApDefenseFleetHelper} from "../Helper/ApDefenseFleetHelper";
+import {ApTechHelper} from "../Helper/ApTechHelper";
 
 let _instance = null;
 
@@ -118,15 +117,37 @@ export class ApDecisionService {
      * @param humanState : HumanState
      * @param ap : AP
      *
-     * @return ApFleet
+     * @return {AP}
      */
     releaseFleet = (fleetIndex, humanState, ap) => {
         const fleetHelper = new ApFleetHelper();
+        const techHelper = new ApTechHelper();
         const fleet = ap.currentFleets[fleetIndex];
-        let updatedAp = ApQuery.getInstance().upgradeApTech( humanState, { ...ap } );
+        let updatedAp = techHelper.upgradeApTech( humanState, { ...ap } );
         updatedAp = fleetHelper.buyShips( fleet, humanState, updatedAp, { ...ap } );
         updatedAp.currentFleets[fleetIndex] = fleet;
+        updatedAp.fleet += fleet.cp;
 
         return updatedAp;
+    }
+
+    /**
+     * Generate a Defense Fleet
+     * @param humanState : HumanState
+     * @param ap : AP
+     */
+    releaseDefenseFleet( humanState, ap ) {
+        const comparisonHelper = new ApAndHumanComparisonHelper();
+        const dieHelper = new DieHelper();
+        const defenseHelper = new ApDefenseFleetHelper();
+        const fleetHelper = new ApFleetHelper();
+        const techHelper = new ApTechHelper();
+
+        const fleet = defenseHelper.generateNewFleet(ap, humanState, comparisonHelper, dieHelper);
+        techHelper.upgradeApTech(humanState, ap, true);
+        defenseHelper.launchDefensiveFleet(ap, fleet, dieHelper);
+        fleetHelper.buyShips(fleet, humanState, ap, null, false );
+
+        ap.currentFleets.push(fleet);
     }
 }

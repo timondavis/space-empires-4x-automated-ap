@@ -200,38 +200,4 @@ export class ApQuery {
 
         return ships;
     }
-
-    /**
-     * Upgrade AP Tech.  Designed for use on fleet release.
-     *
-     * @param humanState : HumanState
-     * @param ap : AP
-     *
-     * @return AP
-     */
-    upgradeApTech = (humanState, ap) => {
-        const techHelper = new ApTechHelper();
-        techHelper.maybeBuyPointDefense(ap, humanState);
-        techHelper.maybeBuyMineSweep(ap, humanState);
-        techHelper.maybeBuyScanners(ap, humanState);
-        techHelper.maybeBuyShipSizeUpgrade(ap);
-        techHelper.maybeBuyFighterUpgrade(ap, humanState);
-
-        try {
-            let keepPurchasing = false;
-            let loopEscape = 0;
-            do {
-                keepPurchasing = techHelper.buyTechUpgradeFromTable( ap, humanState );
-                loopEscape++;
-
-                if ( loopEscape >= 100 ) {
-                    throw 'Infinite Loop Error';
-                }
-            } while ( keepPurchasing);
-        } catch( ex ) {
-            console.warn( 'Tech Upgrade Loop exceeded escape threshold.' );
-        }
-
-        return ap;
-    }
 }

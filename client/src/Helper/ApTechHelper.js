@@ -13,14 +13,22 @@ export class ApTechHelper {
      *
      * @param ap : AP
      * @param humanState : HumanState
+     * @param rerollTen : boolean
      *
      * @return boolean Returns FALSE if inability to buy more tech was detected, TRUE otherwise.
      */
-    buyTechUpgradeFromTable(ap, humanState) {
+    buyTechUpgradeFromTable(ap, humanState, rerollTen = false ) {
         const apq = ApQuery.getInstance();
         const ts = TechService.getInstance();
 
         let techRoll = dieHelper.d10();
+
+        if ( rerollTen && techRoll === 10) {
+            while (techRoll === 10 ) {
+                techRoll = dieHelper.d10();
+            }
+        }
+
         let techChoice = '';
         const affordableTech = apq.getAvailableTechForTechNameList(defaultTechCandidates, ap);
 
@@ -179,6 +187,7 @@ export class ApTechHelper {
     }
 
     /**
+     * Buy a fighter upgrade if conditions are correct.
      *
      * @param ap : AP
      * @param humanState : HumanState
@@ -190,5 +199,39 @@ export class ApTechHelper {
                 apq.buyApTechUpgrade( 'fighter', ap );
             }
         }
+    }
+
+    /**
+     * Upgrade AP Tech.  Designed for use on fleet release.
+     *
+     * @param humanState : HumanState
+     * @param ap : AP
+     * @param isDefenseUpgrade : boolean
+     *
+     * @return AP
+     */
+    upgradeApTech = (humanState, ap, isDefenseUpgrade = false) => {
+        this.maybeBuyPointDefense(ap, humanState);
+        this.maybeBuyMineSweep(ap, humanState);
+        this.maybeBuyScanners(ap, humanState);
+        this.maybeBuyShipSizeUpgrade(ap);
+        this.maybeBuyFighterUpgrade(ap, humanState);
+
+        try {
+            let keepPurchasing = false;
+            let loopEscape = 0;
+            do {
+                keepPurchasing = this.buyTechUpgradeFromTable( ap, humanState, isDefenseUpgrade );
+                loopEscape++;
+
+                if ( loopEscape >= 100 ) {
+                    throw 'Infinite Loop Error';
+                }
+            } while (keepPurchasing);
+        } catch( ex ) {
+            console.warn( 'Tech Upgrade Loop exceeded escape threshold.' );
+        }
+
+        return ap;
     }
 }

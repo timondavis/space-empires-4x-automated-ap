@@ -7,7 +7,7 @@ export class EconRollTable {
     constructor() {
         this.rows = [];
         this.rows[0] = new EconRollTableRow( 1, new DieRange(), new DieRange(3,10), new DieRange(), new DieRange(1,2));
-        this.rows[1] = new EconRollTableRow( 1, new DieRange(2,3), new DieRange(4,8), new DieRange(), new DieRange(1,1));
+        this.rows[1] = new EconRollTableRow( 1, new DieRange(2,3), new DieRange(4,10), new DieRange(), new DieRange(1,1));
         this.rows[2] = new EconRollTableRow( 2, new DieRange(2,4), new DieRange(5,8), new DieRange(9,10), new DieRange(1,1));
         this.rows[3] = new EconRollTableRow( 2, new DieRange(2,5), new DieRange(6,8), new DieRange(9,10), new DieRange(1,1));
         this.rows[4] = new EconRollTableRow( 2, new DieRange(2,5), new DieRange(6,9), new DieRange(10), new DieRange(1,1));

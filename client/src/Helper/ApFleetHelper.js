@@ -46,18 +46,19 @@ export class ApFleetHelper {
      * @param humanState : HumanState
      * @param ap : AP
      * @param oldAp : AP
+     * @param isRaidersAllowed : boolean
      */
-    buyShips( fleet, humanState, ap, oldAp ) {
+    buyShips( fleet, humanState, ap, oldAp, isRaidersAllowed = true ) {
         let isCarrierFleet = false;
 
-        if (this.maybeBuyAllRaiders(ap, oldAp, fleet, humanState, isCarrierFleet)) {
+        if (this.maybeBuyAllRaiders(ap, oldAp, fleet, humanState, isCarrierFleet, isRaidersAllowed)) {
             return;
         }
 
         isCarrierFleet = this.maybeBuyFighters(ap, fleet, humanState);
 
         // Reconsider raiders after considering carrier fleet.
-        if ( this.maybeBuyAllRaiders(ap, oldAp, fleet, humanState, isCarrierFleet)) {
+        if ( this.maybeBuyAllRaiders(ap, oldAp, fleet, humanState, isCarrierFleet, isRaidersAllowed)) {
             return;
         }
 
@@ -251,10 +252,13 @@ export class ApFleetHelper {
      * @param fleet : ApFleet
      * @param humanState : HumanState
      * @param isCarrierFleet : boolean
+     * @param isRaidersAllowed : boolean
      * @returns {boolean}
      */
-    maybeBuyAllRaiders( ap, oldAp, fleet, humanState, isCarrierFleet ) {
+    maybeBuyAllRaiders( ap, oldAp, fleet, humanState, isCarrierFleet , isRaidersAllowed) {
         const apq = ApQuery.getInstance();
+
+        if ( !isRaidersAllowed ) { return false; }
 
         if (fleet.isRaider) {
             this.buyAllRaiders(fleet, ap);
