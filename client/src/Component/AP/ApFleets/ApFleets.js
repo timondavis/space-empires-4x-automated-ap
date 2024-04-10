@@ -39,7 +39,7 @@ export function ApFleets({humanState, ap, apUpdateCallback}) {
                 {ap.currentFleets.length > 0 && ap.currentFleets.map((fleet, index) =>
                     (
                         <tr key={index} >
-                            <td>{index}</td>
+                            <td>{index + 1}</td>
                             <td>{fleet.cp}</td>
                             {fleet.isRaider ? (<td>Y</td>) : (<td>N</td>)}
                             <td><button onClick={() => releaseFleet(fleet, humanState, ap, index)}>Release</button></td>

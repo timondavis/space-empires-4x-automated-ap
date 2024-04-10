@@ -90,6 +90,12 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
     const rollEcon = () => {
         const newAp = ( ApDecisionService.getInstance().rollEcon({...ap}, econTable) );
         const adjustedEconTable = {...econTable};
+        const history = [ ...apHistory ];
+
+        history.push({
+            ...ap,
+            purchasedTech: [...ap.purchasedTech]
+        });
 
         // If Economy points were added, those points are applied to the econ table 3 turns from now.
         if (newAp.addEconOnRound.length > 0) {
@@ -102,43 +108,22 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
             newAp.addEconOnRound = [];
         }
 
+        ApDecisionService.getInstance().rollFleet( newAp, launchTable, humanState );
+        newAp.econTurn = ap.econTurn + 1;
+
+        setApHistory(history);
         setAdjustedAp(newAp);
         setEconTable(adjustedEconTable);
     }
 
 
-    /**
-     * Execute the fleet roll for the AP.
-     */
-    const rollFleet = () => {
-        let nextAp = Object.assign(new AP(), {...ap});
-        nextAp = ApDecisionService.getInstance().rollFleet( nextAp, launchTable, humanState );
-        setAdjustedAp(nextAp);
-    }
-
     const raiseDefenseFleet = () => {
-        debugger;
-        let nextAp  = Object.assign( new AP(), {...ap});
+        let nextAp  = Object.assign( new AP(ap.id, ap.difficultyIncrement), {...ap});
         ApDecisionService.getInstance().releaseDefenseFleet(humanState, nextAp );
         const fleet = nextAp.currentFleets.pop();
         setApAndFleet({ap: nextAp, fleet: fleet});
         setAdjustedAp(nextAp);
     }
-
-    const incrementRound = () => {
-        const history = [ ...apHistory ];
-        history.push({
-            ...ap,
-            purchasedTech: [...ap.purchasedTech]
-        });
-        const nextAp = { ...ap };
-
-        nextAp.econTurn = nextAp.econTurn + 1;
-
-        setApHistory(history);
-        setAdjustedAp(nextAp);
-    }
-
 
     /**
      * Move back in time by decrementing the round, thereby restoring the previous AP state.
@@ -202,10 +187,8 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
             </table>
 
             <div className={"buttons"}>
-                <button onClick={() => decrementRound()}>&lt; PREV</button>
-                <button onClick={() => incrementRound()}>NEXT &gt;</button>
+                <button onClick={() => decrementRound()}>&lt; UNDO</button>
                 <button onClick={() => rollEcon()}>Roll Econ</button>
-                <button onClick={() => rollFleet()}>Roll Fleet</button>
                 <button onClick={() => raiseDefenseFleet()}>Raise Defense Fleet</button>
             </div>
             <FleetModal apId={ap.id}></FleetModal>
