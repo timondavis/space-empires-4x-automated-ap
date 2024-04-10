@@ -127,57 +127,43 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
 
     return(
         <div className={"ApForm"}>
-            <table>
-                <thead>
-                <tr>
-                    <th>Econ Turn</th>
-                    <th>Econ Rolls</th>
-                    <th>Extra Econ</th>
-                    <th>Fleet</th>
-                    <th>Tech</th>
-                    <th>Defense</th>
-                    <th>Fleet Launch</th>
-                    <th>Econ</th>
-                    <th>Fleet</th>
-                    <th>Tech</th>
-                    <th>Def</th>
-                    <th>All Techs Purchased</th>
-                </tr>
-                </thead>
-                <tbody>
+
+            <div className={"container-fluid"}>
                 {showHistory && historyDisplay()}
-                < tr>
-                    <td colSpan="11">
+                <div className={"row"}>
+                    <div className={"col-3"}>
                         <button
                             onClick={() => (showHistory) ? setShowHistory(false) : setShowHistory(true)}>
                             {showHistory && <>Hide History</>}
                             {!showHistory && <>Show History</>}
                         </button>
-                    </td>
-                </tr>
+                    </div>
+                </div>
                 <ApFormRow
                     key={"turn-id-" + ap.econTurn}
                     ap={ap}
                     launchRow={launchTable.rows[adjustedRowIndex()]}
                     econRow={econTable.rows[adjustedRowIndex()]}
                 ></ApFormRow>
-                <tr>
-                    <td colSpan="11">
+                <div className={"row"}>
+                    <div className={"col-3"}>
                         <button
                             onClick={() => (showFuture) ? setShowFuture(false) : setShowFuture(true)}>
                             {showFuture && <>Hide Later Turns</>}
                             {!showFuture && <>Show Later Turns</>}
                         </button>
-                    </td>
-                </tr>
+                    </div>
+                </div>
                 {showFuture && upcomingTurnDisplay()}
-                </tbody>
-            </table>
-
-            <div className={"buttons"}>
-                <button onClick={() => rollEcon()}>Roll Econ</button>
-                <button onClick={() => raiseDefenseFleet()}>Raise Defense Fleet</button>
             </div>
+
+            <div className={"row buttons"}>
+                <div className={"col-6"}>
+                    <button className="button" onClick={() => rollEcon()}>Roll Econ</button>
+                    <button className="button" onClick={() => raiseDefenseFleet()}>Raise Defense Fleet</button>
+                </div>
+            </div>
+
             <FleetModal apId={ap.id}></FleetModal>
         </div>
     );

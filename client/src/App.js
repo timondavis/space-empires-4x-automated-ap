@@ -39,7 +39,6 @@ function App() {
 
     return (
         <div className="App">
-            <HumanStateForm humanState={humanState} formUpdateCallback={ (data) => setHumanState(data)}></HumanStateForm>
             <FleetModalProvider>
                 <ApForm
                     humanState={humanState}
@@ -48,6 +47,7 @@ function App() {
                     }></ApForm>
                 <ApFleets humanState={humanState} ap={apState[0]} apUpdateCallback={(data) => updateAp(data)}></ApFleets>
             </FleetModalProvider>
+            <HumanStateForm humanState={humanState} formUpdateCallback={ (data) => setHumanState(data)}></HumanStateForm>
         </div>
     );
 }

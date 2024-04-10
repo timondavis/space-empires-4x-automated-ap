@@ -1,59 +1,106 @@
 import {ShowDiceRange} from "../../ShowDiceRange/ShowDiceRange";
 import {Component} from "react";
+import "./ApFormRow.css"
 
-export class ApFormRow extends Component {
+export function ApFormRow({ap,econRow, launchRow}) {
 
-    render() {
-        return (
-            <tr>
-                <td>{this.props.ap.econTurn + 1}</td>
-                <td>{this.props.econRow?.econRolls}</td>
-                <td>{this.props.econRow?.extraEcon}</td>
-                <td>{this.props.ap.fleet}</td>
-                <td>{this.props.ap.tech}</td>
-                <td>{this.props.ap.defense}</td>
-                <td>
+    return (
+        <dl className={"ApFormRow row"}>
+
+            <div>
+                <dt className={"col-6"}>Econ Turn</dt>
+                <dd className={"col-6"}>{ap.econTurn + 1}</dd>
+            </div>
+
+            <div>
+                <dt className={"col-6"}>Econ Rolls</dt>
+                <dd className={"col-6"}>{econRow?.econRolls}</dd>
+            </div>
+
+            <div>
+                <dt className={"col-6"}>Extra Econ</dt>
+                <dd className={"col-6"}>{econRow?.extraEcon}</dd>
+            </div>
+
+            <div>
+                <dt className={"col-6"}>Fleet CP</dt>
+                <dd className={"col-6"}>{ap.fleet}</dd>
+            </div>
+
+            <div>
+                <dt className={"col-6"}>Tech CP</dt>
+                <dd className={"col-6"}>{ap.tech}</dd>
+            </div>
+
+            <div>
+                <dt className={"col-6"}>Defense CP</dt>
+                <dd className={"col-6"}>{ap.defense}</dd>
+            </div>
+
+            <div className={"d-none"}>
+                <dt className={"col-6"}>Fleet Launch Range</dt>
+                <dd className={"col-6"}>
                     <ShowDiceRange
-                        min={this.props.launchRow?.min}
-                        max={this.props.launchRow?.max}>
+                        min={launchRow?.min}
+                        max={launchRow?.max}>
                     </ShowDiceRange>
-                </td>
-                <td>
+                </dd>
+            </div>
+
+            <div className={"d-none"}>
+                <dt className={"col-6"}>Econ Range</dt>
+                <dd className={"col-6"}>
                     <ShowDiceRange
-                        min={this.props.econRow?.econ?.min}
-                        max={this.props.econRow?.econ?.max}
+                        min={econRow?.econ?.min}
+                        max={econRow?.econ?.max}
                     >
                     </ShowDiceRange>
-                </td>
-                <td>
+                </dd>
+            </div>
+
+            <div className={"d-none"}>
+                <dt className={"col-6"}>Fleet Range</dt>
+                <dd className={"col-6"}>
                     <ShowDiceRange
-                        min={this.props.econRow?.fleet?.min}
-                        max={this.props.econRow?.fleet?.max}
+                        min={econRow?.fleet?.min}
+                        max={econRow?.fleet?.max}
                     >
                     </ShowDiceRange>
-                </td>
-                <td>
+                </dd>
+            </div>
+
+            <div className={"d-none"}>
+                <dt className={"col-6"}>Tech Range</dt>
+                <dd className={"col-6"}>
                     <ShowDiceRange
-                        min={this.props.econRow?.tech?.min}
-                        max={this.props.econRow?.tech?.max}
+                        min={econRow?.tech?.min}
+                        max={econRow?.tech?.max}
                     >
                     </ShowDiceRange>
-                </td>
-                <td>
+                </dd>
+            </div>
+
+            <div className={"d-none"}>
+                <dt className={"col-6"}>Defense Range</dt>
+                <dd className={"col-6"}>
                     <ShowDiceRange
-                        min={this.props.econRow?.def?.min}
-                        max={this.props.econRow?.def?.max}
+                        min={econRow?.def?.min}
+                        max={econRow?.def?.max}
                     >
                     </ShowDiceRange>
-                </td>
-                <td>
+                </dd>
+            </div>
+
+            <div className={"tech-list"}>
+                <dt className={"col-6"}>Purchased Tech</dt>
+                <dd className={"col-6"}>
                     <ul>
-                        {this.props.ap.purchasedTech.map((item) =>
+                        {ap.purchasedTech.map((item) =>
                             (<li key={item.name}>{item.name} - {item.level}</li>)
                         )}
                     </ul>
-                </td>
-            </tr>
-        )
-    }
+                </dd>
+            </div>
+        </dl>
+    );
 }
