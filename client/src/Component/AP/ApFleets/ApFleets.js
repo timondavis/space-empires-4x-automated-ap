@@ -1,11 +1,18 @@
-import {useContext} from "react";
+import {useContext, useState} from "react";
 import {ApDecisionService} from "../../../Service/ApDecisionService";
 import {FleetModalContext} from "../../../Context/FleetModalContext";
+import {BsChevronBarExpand, BsChevronBarContract} from "react-icons/bs";
+import "./ApFleets.css";
 
 
 export function ApFleets({humanState, ap, apUpdateCallback}) {
 
     const {setApAndFleet} = useContext(FleetModalContext);
+    const [isFolded, setIsFolded] = useState(false);
+
+    const toggleFolded = () => {
+        setIsFolded( ! isFolded );
+    }
 
     /**
      * Upgrade tech, pick out ships, inform the user and release the fleet.
@@ -23,32 +30,33 @@ export function ApFleets({humanState, ap, apUpdateCallback}) {
     }
 
     return (
-        <div>
-            <h3>Fleets</h3>
-            <table>
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>CP</th>
-                    <th>Raider</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
+        <div className={"container-fluid mt-4"}>
 
-                {ap.currentFleets.length > 0 && ap.currentFleets.map((fleet, index) =>
-                    (
-                        <tr key={index} >
-                            <td>{index + 1}</td>
-                            <td>{fleet.cp}</td>
-                            {fleet.isRaider ? (<td>Y</td>) : (<td>N</td>)}
-                            <td><button onClick={() => releaseFleet(fleet, humanState, ap, index)}>Release</button></td>
-                        </tr>
-                    )
-                )}
+            <div className={"row"}>
+                <div className={"col-12 pointer d-inline-flex justify-content-start align-items-center"} onClick={toggleFolded}>
+                    { ( isFolded ) ?
+                        <BsChevronBarContract className={"pointer-icon"}></BsChevronBarContract> :
+                        <BsChevronBarExpand className={"pointer-icon"}></BsChevronBarExpand>
+                    }
+                    <h3 className={'ms-2'}>Fleets</h3>
+                </div>
+            </div>
 
-                </tbody>
-            </table>
+            {!isFolded && (
+                <div className={"row"}>
+                    <div className={"col-12"}>
+                        <div>
+                            {ap.currentFleets.length > 0 && ap.currentFleets.map((fleet, index) =>
+                                (
+                                    <button key={index} className="btn btn-warning m-1" onClick={() => releaseFleet(fleet, humanState, ap, index)}>
+                                        #{index + 1} - {fleet.cp} CP
+                                    </button>
+                                ))
+                            }
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
