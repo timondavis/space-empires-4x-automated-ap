@@ -7,6 +7,7 @@ import {ApFormRow} from "../ApFormRow/ApFormRow";
 import {ApDecisionService} from "../../../Service/ApDecisionService";
 import {FleetModal} from "../../FleetModal/FleetModal";
 import {FleetModalContext} from "../../../Context/FleetModalContext";
+import {TechService} from "../../../Service/TechService";
 
 const gameLength = 20;
 
@@ -130,13 +131,17 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
             <div className={"container-fluid"}>
                 <div className={"row"}>
                     <div className={"col-12"}>
-                        <h1>{ap.color}</h1>
+                        <div className={"d-flex align-items-start align-items-center"}>
+                            <img className="chit-image me-3 mt-3" alt={ap.color + " game chit"}
+                                 src={"/assets/images/" + ap.color + "-chit.png"}></img>
+                            <h1 className="mt-4">{ap.color}</h1>
+                        </div>
                     </div>
                 </div>
                 {showHistory && historyDisplay()}
                 <div className={"row d-none"}>
                     <div className={"col-3"}>
-                        <button
+                    <button
                             onClick={() => (showHistory) ? setShowHistory(false) : setShowHistory(true)}>
                             {showHistory && <>Hide History</>}
                             {!showHistory && <>Show History</>}

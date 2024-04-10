@@ -5,3 +5,7 @@
 h1 {
     text-transform: uppercase;
 }
+
+.chit-image {
+    max-height: 3rem;
+}

@@ -1,5 +1,4 @@
 import {ShowDiceRange} from "../../ShowDiceRange/ShowDiceRange";
-import {Component} from "react";
 import "./ApFormRow.css"
 import {ApFormRowEntry} from "./ApFormRowEntry/ApFormRowEntry";
 import {TechService} from "../../../Service/TechService";
@@ -20,7 +19,7 @@ export function ApFormRow({ap,econRow, launchRow}) {
     }
 
     return (
-        <dl className={"ApFormRow row"}>
+        <dl className={"ApFormRow row ap-" + ap.color }>
 
             <ApFormRowEntry dt={"Econ Turn"}  dd={ap.econTurn + 1}></ApFormRowEntry>
             <ApFormRowEntry dt={"Econ Rolls"} dd={econRow?.econRolls}></ApFormRowEntry>
@@ -30,9 +29,10 @@ export function ApFormRow({ap,econRow, launchRow}) {
             <ApFormRowEntry dt={"Defense CP"} dd={ap.defense}></ApFormRowEntry>
 
             <ApFormRowEntry className={"d-none"} dt={"Fleet Launch Range"}
-                            dd={<ShowDiceRange
-                                min={launchRow?.min}
-                                max={launchRow?.max}>
+                            dd={
+                                <ShowDiceRange
+                                    min={launchRow?.min}
+                                    max={launchRow?.max}>
                                 </ShowDiceRange>
                             }>
             </ApFormRowEntry>
