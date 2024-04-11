@@ -35,8 +35,8 @@ export function ApFleets({humanState, ap, apUpdateCallback}) {
             <div className={"row"}>
                 <div className={"col-12 pointer d-inline-flex justify-content-start align-items-center"} onClick={toggleFolded}>
                     { ( isFolded ) ?
-                        <BsChevronBarContract className={"pointer-icon"}></BsChevronBarContract> :
-                        <BsChevronBarExpand className={"pointer-icon"}></BsChevronBarExpand>
+                        <BsChevronBarExpand className={"pointer-icon"}></BsChevronBarExpand> :
+                        <BsChevronBarContract className={"pointer-icon"}></BsChevronBarContract>
                     }
                     <h3 className={'ms-2'}>Fleets</h3>
                 </div>
@@ -49,7 +49,7 @@ export function ApFleets({humanState, ap, apUpdateCallback}) {
                             {ap.currentFleets.length > 0 && ap.currentFleets.map((fleet, index) =>
                                 (
                                     <button key={index} className="btn btn-warning m-1" onClick={() => releaseFleet(fleet, humanState, ap, index)}>
-                                        #{index + 1} - {fleet.cp} CP
+                                        #{index + 1} - {fleet.cp} CP {fleet.isRaider && <span>- *RAIDERS*</span>}
                                     </button>
                                 ))
                             }
