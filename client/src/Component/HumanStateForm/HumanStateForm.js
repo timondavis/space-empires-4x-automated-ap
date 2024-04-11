@@ -32,7 +32,7 @@ export function HumanStateForm({humanState, formUpdateCallback}) {
     }
 
     return (
-        <div className="container mt-4">
+        <div className="container-fluid mt-4">
             <div className={"row"}>
                 <div onClick={toggleDetail} className={"col-12 d-flex align-items-center justify-content-start pointer"}>
                     {showDetails ?

@@ -39,13 +39,21 @@ export function FleetModal({apId}) {
 
     return(
         showModal() && <div className="fleet-modal">
-            <h3>Ships Launching</h3>
-            <ul>
-                {ships().map((ship) =>
-                    <li key={ship.type}> {ship.name} ({ship.type}) - {ship.count}</li>
-                )}
-            </ul>
-            <button className={"close-button"} onClick={() => closeModal()}>Close</button>
+            <div className={"container"}>
+                <div className={"row"}>
+                    <div className={"col-12"}>
+                        <h3>Ships Launching</h3>
+                        <ul>
+                            {ships().map((ship) =>
+                                <li key={ship.type}> {ship.name} ({ship.type}) - {ship.count}</li>
+                            )}
+                        </ul>
+                        <div className={"buttons d-flex justify-content-end align-items-end w-100"}>
+                            <button className={"btn btn-secondary close-button"} onClick={() => closeModal()}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

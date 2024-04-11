@@ -7,7 +7,7 @@
     width:80%;
     max-height:80%;
     border: 1px solid black;
-    padding: 50px;
+    padding: 1rem 0.5rem;
     z-index: 1000;
-    border-radius: 5px;
+    border-radius: 1rem;
 }
