@@ -32,13 +32,13 @@ export function HumanStateForm({humanState, formUpdateCallback}) {
     }
 
     return (
-        <div className="container-fluid mt-4">
+        <div className="human-state-form container-fluid mt-4">
             <div className={"row"}>
                 <div onClick={toggleDetail} className={"col-12 d-flex align-items-center justify-content-start pointer"}>
                     {showDetails ?
                         (<BsChevronBarContract className={"toggle"}></BsChevronBarContract>) :
                         (<BsChevronBarExpand className={"toggle"}></BsChevronBarExpand>)}
-                    <h3 className={"ms-2"}>Human Progress Status</h3>
+                    <button className={"button-toggle"}><h3 className={"ms-2"}>Human Progress Status</h3></button>
                 </div>
             </div>
             {showDetails && (

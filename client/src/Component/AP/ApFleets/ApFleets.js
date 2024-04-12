@@ -30,7 +30,7 @@ export function ApFleets({humanState, ap, apUpdateCallback}) {
     }
 
     return (
-        <div className={"container-fluid mt-4"}>
+        <div className={"ap-fleets container-fluid mt-4"}>
 
             <div className={"row"}>
                 <div className={"col-12 pointer d-inline-flex justify-content-start align-items-center"} onClick={toggleFolded}>
@@ -38,7 +38,7 @@ export function ApFleets({humanState, ap, apUpdateCallback}) {
                         <BsChevronBarExpand className={"pointer-icon"}></BsChevronBarExpand> :
                         <BsChevronBarContract className={"pointer-icon"}></BsChevronBarContract>
                     }
-                    <h3 className={'ms-2'}>Fleets</h3>
+                    <button className={'button-toggle'}><h3 className={'ms-2'}>Fleets</h3></button>
                 </div>
             </div>
 

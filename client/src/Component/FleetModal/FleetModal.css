@@ -11,3 +11,19 @@
     z-index: 1000;
     border-radius: 1rem;
 }
+
+.fleet-modal.ap-blue {
+    background-color: lightblue;
+}
+
+.fleet-modal.ap-yellow {
+    background-color: lightgoldenrodyellow;
+}
+
+.fleet-modal.ap-red {
+    background-color: lightcoral;
+}
+
+.fleet-modal.ap-green {
+    background-color: lightgreen;
+}

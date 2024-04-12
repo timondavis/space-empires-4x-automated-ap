@@ -23,7 +23,6 @@ export const GameStart = ({startGame}) => {
     const onStateChange = (data) => {
         const ap = new AP(data?.id, data?.difficulty, data?.color);
 
-
         if (data?.color === 'none' && ap.id < apCollection.length  - 1) {
             dispatch({type: 'remove_ap', value: {ap: ap}});
         } else {
@@ -31,6 +30,18 @@ export const GameStart = ({startGame}) => {
         }
 
         dispatch({type: 'add_ap'});
+    }
+
+    const onStartGame = () => {
+
+        apCollection.forEach(ap => {
+            if ( ap.color === 'none' ) {
+                dispatch({type: 'remove_ap', value: {ap: ap}});
+            }
+        });
+
+        dispatch({type: 'feature_ap', value: {ap: apCollection[0]}});
+        startGame();
     }
 
     const participatingColors = () => {
@@ -62,7 +73,7 @@ export const GameStart = ({startGame}) => {
 
             <div className={"row"}>
                 <div className={"col-12 d-flex justify-content-end"}>
-                    <button className={startGameButtonClass()} onClick={() => validated() && startGame()}>Start Game</button>
+                    <button className={startGameButtonClass()} onClick={() => validated() && onStartGame()}>Start Game</button>
                 </div>
             </div>
         </div>

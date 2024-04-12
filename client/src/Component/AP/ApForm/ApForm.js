@@ -7,6 +7,7 @@ import {ApFormRow} from "../ApFormRow/ApFormRow";
 import {ApDecisionService} from "../../../Service/ApDecisionService";
 import {FleetModal} from "../../FleetModal/FleetModal";
 import {FleetModalContext} from "../../../Context/FleetModalContext";
+import {ApTabs} from "../ApTabs/ApTabs";
 
 const gameLength = 20;
 
@@ -128,6 +129,9 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
         <div className={"ApForm"}>
             <div className={"container-fluid"}>
                 <div className={"row"}>
+                    <div className={"col-12"}>
+                        <ApTabs></ApTabs>
+                    </div>
                     <div className={"col-12"}>
                         <div className={"d-flex align-items-start align-items-center"}>
                             <img className="chit-image me-3 mt-3" alt={ap.color + " game chit"}

@@ -6,6 +6,17 @@
     background-color: lightgreen;
 }
 
+.ap-yellow > div {
+    background-color: lightgoldenrodyellow;
+}
+
+.ap-blue > div {
+    background-color: lightblue;
+}
+
+.ap-red > div {
+    background-color: lightcoral;
+}
 
 .tech-list ul {
     list-style: none;

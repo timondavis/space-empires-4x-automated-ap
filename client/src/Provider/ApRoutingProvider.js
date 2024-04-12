@@ -4,8 +4,8 @@ import {ApRoutingContext} from "../Context/ApRoutingContext";
 
 const initialState = {
     apCollection : [new AP(0, 5, 'none')],
-    featuredApId : 0,
-    currentApId : 0
+    featuredAp : null,
+    currentAp : null
 }
 
 const reducer = (state, action) => {
@@ -17,9 +17,11 @@ const reducer = (state, action) => {
        case ('update_ap') :
            return updateAp(state, action.value);
        case ('remove_ap') :
-            return removeAp(state, action.value);
+           return removeAp(state, action.value);
        case ('feature_ap') :
            return featureAp(state, action.value);
+       default:
+           return state;
    }
 }
 
@@ -29,8 +31,8 @@ export const ApRoutingProvider = ({children}) => {
     return (
         <ApRoutingContext.Provider value={{
             apCollection: state.apCollection,
-            featuredAp: (state.apCollection.length > 0) ? state.apCollection[state.featuredApId] : null,
-            currentAp: (state.apCollection.length > 0) ? state.apCollection[state.currentApId] : null,
+            featuredAp: state.featuredAp,
+            currentAp: state.currentAp,
             dispatch: dispatch
         }}>
             {children}
@@ -57,7 +59,7 @@ const addAp = (state, value) => {
 }
 
 const advanceApTurn = (state) => {
-    const nextId = (state.currentApId + 1 > state.apCollection.length) ? 0 : state.currentApId + 1;
+    const nextId = (state.currentAp.id + 1 > state.apCollection.length) ? 0 : state.currentAp.id + 1;
     return {
         ...state,
         currentApiId : nextId
@@ -78,7 +80,7 @@ const updateAp = (state, value) => {
 const featureAp = (state, value) => {
     return {
         ...state,
-        featuredApId: value?.ap.id
+        featuredAp: value?.ap
     }
 }
 

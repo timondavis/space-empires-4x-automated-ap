@@ -38,7 +38,7 @@ export function FleetModal({apId}) {
     }
 
     return(
-        showModal() && <div className="fleet-modal">
+        showModal() && <div className={`fleet-modal ap-${apAndFleet.ap.color}`}>
             <div className={"container"}>
                 <div className={"row"}>
                     <div className={"col-12"}>

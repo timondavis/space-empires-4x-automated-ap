@@ -2,3 +2,8 @@
     position: relative;
     bottom: .25rem;
 }
+
+.human-state-form .button-toggle {
+    background: transparent;
+    border: none;
+}

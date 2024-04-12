@@ -29,7 +29,7 @@ export const PrimaryView = () => {
 
     const getApForms = () => {
 
-        return apCollection.map((ap, idx) => (
+        return apCollection.map((ap) => (
             (featuredAp.id === ap.id) &&
             <>
                 <ApForm

@@ -1,4 +1,9 @@
-.pointer-icon {
+.ap-fleets .pointer-icon {
     position: relative;
     bottom: .25rem;
+}
+
+.ap-fleets .button-toggle {
+    background: transparent;
+    border: none;
 }
