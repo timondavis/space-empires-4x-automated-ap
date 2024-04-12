@@ -7,7 +7,6 @@ import {ApFormRow} from "../ApFormRow/ApFormRow";
 import {ApDecisionService} from "../../../Service/ApDecisionService";
 import {FleetModal} from "../../FleetModal/FleetModal";
 import {FleetModalContext} from "../../../Context/FleetModalContext";
-import {TechService} from "../../../Service/TechService";
 
 const gameLength = 20;
 
@@ -116,7 +115,6 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
         setAdjustedAp(newAp);
         setEconTable(adjustedEconTable);
     }
-
 
     const raiseDefenseFleet = () => {
         let nextAp  = Object.assign( new AP(ap.id, ap.difficultyIncrement), {...ap});
