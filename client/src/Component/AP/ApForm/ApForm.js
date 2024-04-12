@@ -8,10 +8,13 @@ import {ApDecisionService} from "../../../Service/ApDecisionService";
 import {FleetModal} from "../../FleetModal/FleetModal";
 import {FleetModalContext} from "../../../Context/FleetModalContext";
 import {ApTabs} from "../ApTabs/ApTabs";
+import {ApRoutingContext} from "../../../Context/ApRoutingContext";
 
 const gameLength = 20;
 
 export function ApForm({humanState, ap, apUpdateCallback}) {
+
+    const {currentAp, dispatch} = useContext(ApRoutingContext);
 
     const launchTable = new FleetLaunchTable();
     const {setApAndFleet} = useContext(FleetModalContext);
@@ -115,6 +118,7 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
         setApHistory(history);
         setAdjustedAp(newAp);
         setEconTable(adjustedEconTable);
+        dispatch({type: 'advance_ap_turn'});
     }
 
     const raiseDefenseFleet = () => {
@@ -123,6 +127,15 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
         const fleet = nextAp.currentFleets.pop();
         setApAndFleet({ap: nextAp, fleet: fleet});
         setAdjustedAp(nextAp);
+    }
+
+    const hopToCurrent = () => {
+        dispatch({type: 'feature_ap', value: {ap: currentAp}});
+    }
+
+    const defeatAp = () => {
+        dispatch({type: 'advance_ap_turn'});
+        dispatch({type: 'remove_ap', value: {ap: ap}});
     }
 
     return(
@@ -170,8 +183,17 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
 
             <div className={"row buttons"}>
                 <div className={"col-12"}>
-                    <button className="btn btn-primary m-1" onClick={() => rollEcon()}>Roll Econ</button>
-                    <button className="btn btn-secondary" onClick={() => raiseDefenseFleet()}>Raise Defense Fleet</button>
+                    <div className={"w-100 d-flex justify-content-end align-items-center"}>
+                        <button className="btn btn-danger m-1" onClick={() => defeatAp()}>Defeat AP</button>
+                        <button className="btn btn-secondary m-1 " onClick={() => raiseDefenseFleet()}>Raise Defense Fleet
+                        </button>
+
+                        {currentAp?.id === ap?.id ?
+                            (<button className="btn btn-primary m-1" onClick={() => rollEcon()}>Roll Econ</button>) :
+                            (<button className="btn btn-outline-primary m-1" onClick={() => hopToCurrent()}>Next AP &gt;</button>)
+                        }
+
+                    </div>
                 </div>
             </div>
 

@@ -41,6 +41,7 @@ export const GameStart = ({startGame}) => {
         });
 
         dispatch({type: 'feature_ap', value: {ap: apCollection[0]}});
+        dispatch({type: 'advance_ap_turn'});
         startGame();
     }
 

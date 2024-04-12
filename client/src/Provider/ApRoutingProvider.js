@@ -59,10 +59,11 @@ const addAp = (state, value) => {
 }
 
 const advanceApTurn = (state) => {
-    const nextId = (state.currentAp.id + 1 > state.apCollection.length) ? 0 : state.currentAp.id + 1;
+    const nextId = (!state.currentAp || state.currentAp.id + 1 >= state.apCollection.length) ?
+        0 : state.currentAp.id + 1;
     return {
         ...state,
-        currentApiId : nextId
+        currentAp : state.apCollection[nextId]
     };
 }
 
@@ -90,13 +91,26 @@ const removeAp = (state,value) => {
     let updatedCollection = [ ...state.apCollection ];
     updatedCollection.splice(value.ap.id, 1);
 
+    let currentAp = state.currentAp;
+    let featuredAp = state.featuredAp;
+
     updatedCollection = updatedCollection.map((ap, idx) => {
         ap.id = idx;
         return ap;
     });
 
+    if (state.currentAp.id === value.ap.id) {
+        currentAp = (value.ap.id < updatedCollection.length - 1) ? updatedCollection[0] : updatedCollection[value.ap.id];
+    }
+
+    if (state.featuredAp.id === value.ap.id) {
+        featuredAp = (value.ap.id < updatedCollection.length - 1) ? updatedCollection[0] : updatedCollection[value.ap.id];
+    }
+
     return {
         ...state,
-        apCollection: updatedCollection
+        apCollection: updatedCollection,
+        currentAp: currentAp,
+        featuredAp: featuredAp
     };
 }
