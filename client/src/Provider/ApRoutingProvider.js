@@ -100,11 +100,11 @@ const removeAp = (state,value) => {
     });
 
     if (state.currentAp.id === value.ap.id) {
-        currentAp = (value.ap.id < updatedCollection.length - 1) ? updatedCollection[0] : updatedCollection[value.ap.id];
+        currentAp = (value.ap.id < updatedCollection.length - 1) ? updatedCollection[value.ap.id] : updatedCollection[0];
     }
 
     if (state.featuredAp.id === value.ap.id) {
-        featuredAp = (value.ap.id < updatedCollection.length - 1) ? updatedCollection[0] : updatedCollection[value.ap.id];
+        featuredAp = (value.ap.id < updatedCollection.length - 1) ? updatedCollection[value.ap.id] : updatedCollection[0];
     }
 
     return {

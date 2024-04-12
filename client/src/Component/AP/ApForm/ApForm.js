@@ -9,6 +9,7 @@ import {FleetModal} from "../../FleetModal/FleetModal";
 import {FleetModalContext} from "../../../Context/FleetModalContext";
 import {ApTabs} from "../ApTabs/ApTabs";
 import {ApRoutingContext} from "../../../Context/ApRoutingContext";
+import {DefeatApModal} from "../../DefeatApModal/DefeatApModal";
 
 const gameLength = 20;
 
@@ -17,7 +18,7 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
     const {currentAp, dispatch} = useContext(ApRoutingContext);
 
     const launchTable = new FleetLaunchTable();
-    const {setApAndFleet} = useContext(FleetModalContext);
+    const {setApAndFleet, setDefeatAp} = useContext(FleetModalContext);
 
     const [apHistory, setApHistory] = useState([]);
     const [econTable, setEconTable] = useState(new EconRollTable());
@@ -134,8 +135,7 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
     }
 
     const defeatAp = () => {
-        dispatch({type: 'advance_ap_turn'});
-        dispatch({type: 'remove_ap', value: {ap: ap}});
+        setDefeatAp(ap);
     }
 
     return(
@@ -198,6 +198,7 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
             </div>
 
             <FleetModal apId={ap.id}></FleetModal>
+            <DefeatApModal ap={ap}></DefeatApModal>
         </div>
     );
 }
