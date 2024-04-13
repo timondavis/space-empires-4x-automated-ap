@@ -3,7 +3,7 @@ import {ApRoutingContext} from "../../Context/ApRoutingContext";
 import {ApSelector} from "./ApSelector/ApSelector";
 import {AP} from "../../Model/AP";
 
-export const GameStart = ({startGame}) => {
+export const GameStart = () => {
 
     const {dispatch, apCollection, featuredAp, currentAp} = useContext(ApRoutingContext);
 
@@ -34,15 +34,7 @@ export const GameStart = ({startGame}) => {
 
     const onStartGame = () => {
 
-        apCollection.forEach(ap => {
-            if ( ap.color === 'none' ) {
-                dispatch({type: 'remove_ap', value: {ap: ap}});
-            }
-        });
-
-        dispatch({type: 'feature_ap', value: {ap: apCollection[0]}});
-        dispatch({type: 'advance_ap_turn'});
-        startGame();
+        dispatch({type: 'start_game'});
     }
 
     const participatingColors = () => {

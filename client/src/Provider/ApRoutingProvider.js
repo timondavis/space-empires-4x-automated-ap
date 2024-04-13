@@ -1,11 +1,19 @@
-import React, {useReducer} from "react";
+import React, {useEffect, useReducer} from "react";
 import {AP} from "../Model/AP";
 import {ApRoutingContext} from "../Context/ApRoutingContext";
+import {StorageService} from "../Service/StorageService";
 
-const initialState = {
+const defaultState = {
     apCollection : [new AP(0, 5, 'none')],
     featuredAp : null,
-    currentAp : null
+    currentAp : null,
+    isGameStarted : false,
+    isResetGameProposed : false,
+};
+
+const getInitialState = () => {
+    let state = StorageService.getInstance().getData('ApRoutingProvider');
+    return (state) ? state : defaultState;
 }
 
 const reducer = (state, action) => {
@@ -20,19 +28,33 @@ const reducer = (state, action) => {
            return removeAp(state, action.value);
        case ('feature_ap') :
            return featureAp(state, action.value);
+       case ('start_game'):
+            return startGame(state);
+       case ('propose_reset'):
+            return proposeReset(state);
+       case ('cancel_reset'):
+            return cancelReset(state);
+       case ('reset') :
+           return reset();
        default:
            return state;
    }
 }
 
 export const ApRoutingProvider = ({children}) => {
-    const [state, dispatch] = useReducer( reducer, initialState );
+    const [state, dispatch] = useReducer( reducer, getInitialState() );
+
+    useEffect(() => {
+        StorageService.getInstance().storeData('ApRoutingProvider', state)
+    }, [state]);
 
     return (
         <ApRoutingContext.Provider value={{
             apCollection: state.apCollection,
             featuredAp: state.featuredAp,
             currentAp: state.currentAp,
+            isGameStarted: state.isGameStarted,
+            isResetGameProposed: state.isResetGameProposed,
             dispatch: dispatch
         }}>
             {children}
@@ -99,11 +121,11 @@ const removeAp = (state,value) => {
         return ap;
     });
 
-    if (state.currentAp.id === value.ap.id) {
+    if (state.currentAp?.id === value.ap.id) {
         currentAp = (value.ap.id < updatedCollection.length - 1) ? updatedCollection[value.ap.id] : updatedCollection[0];
     }
 
-    if (state.featuredAp.id === value.ap.id) {
+    if (state.featuredAp?.id === value.ap.id) {
         featuredAp = (value.ap.id < updatedCollection.length - 1) ? updatedCollection[value.ap.id] : updatedCollection[0];
     }
 
@@ -113,4 +135,42 @@ const removeAp = (state,value) => {
         currentAp: currentAp,
         featuredAp: featuredAp
     };
+}
+
+const reset = () => {
+    StorageService.getInstance().clearData('ApRoutingProvider');
+    return defaultState;
+}
+
+const startGame = (state) => {
+
+    let newState = {...state};
+
+    state.apCollection.forEach(ap => {
+        if ( ap.color === 'none' ) {
+            newState = removeAp(newState, {ap: ap});
+        }
+    });
+
+    newState = featureAp(newState, {ap: newState.apCollection[0]});
+    newState = advanceApTurn(newState);
+
+    return {
+        ...newState,
+        isGameStarted: true
+    };
+}
+
+const proposeReset = (state) => {
+    return {
+        ...state,
+        isResetGameProposed : true
+    };
+}
+
+const cancelReset = (state) => {
+    return {
+        ...state,
+        isResetGameProposed : false
+    }
 }
