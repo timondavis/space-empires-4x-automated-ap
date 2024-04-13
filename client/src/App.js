@@ -8,9 +8,9 @@ import {useContext, useState} from "react";
 import {AP} from "./Model/AP";
 import {ApFleets} from "./Component/AP/ApFleets/ApFleets";
 import {HumanState} from "./Model/HumanState";
-import {FleetModalProvider} from "./Provider/FleetModalProvider";
+import {FleetModalProvider} from "./Provider/FleetModalProvider/FleetModalProvider";
 import {ApRoutingContext} from "./Context/ApRoutingContext";
-import {ApRoutingProvider} from "./Provider/ApRoutingProvider";
+import {ApRoutingProvider} from "./Provider/ApRoutingProvider/ApRoutingProvider";
 import {PrimaryView} from "./Component/PrimaryView/PrimaryView";
 import {GameStart} from "./Component/GameStart/GameStart";
 

@@ -1,7 +1,7 @@
-import {ApQuery} from "../Service/ApQuery";
-import {TechService} from "../Service/TechService";
-import {DieHelper} from "./DieHelper";
-import {DieRange} from "../Model/DieRange";
+import {ApQuery} from "../../Service/ApQuery/ApQuery";
+import {TechService} from "../../Service/TechService/TechService";
+import {DieHelper} from "../DieHelper/DieHelper";
+import {DieRange} from "../../Model/DieRange";
 
 const dieHelper = new DieHelper();
 const defaultTechCandidates = ['attack', 'defense', 'tactics', 'cloaking', 'scanner', 'fighter', 'point_defense', 'mine_sweep' ];

@@ -1,4 +1,4 @@
-import {ApQuery} from "../Service/ApQuery";
+import {ApQuery} from "../../Service/ApQuery/ApQuery";
 
 export class ApAndHumanComparisonHelper {
     /**

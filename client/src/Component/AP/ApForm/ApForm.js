@@ -4,12 +4,13 @@ import {AP} from "../../../Model/AP";
 import {EconRollTable} from "../../../Model/EconRollTable"
 import {FleetLaunchTable} from "../../../Model/FleetLaunchTable";
 import {ApFormRow} from "../ApFormRow/ApFormRow";
-import {ApDecisionService} from "../../../Service/ApDecisionService";
+import {ApDecisionService} from "../../../Service/ApDecisionService/ApDecisionService";
 import {FleetModal} from "../../FleetModal/FleetModal";
 import {FleetModalContext} from "../../../Context/FleetModalContext";
 import {ApTabs} from "../ApTabs/ApTabs";
 import {ApRoutingContext} from "../../../Context/ApRoutingContext";
 import {DefeatApModal} from "../../DefeatApModal/DefeatApModal";
+import {DieHelper} from "../../../Helper/DieHelper/DieHelper";
 
 const gameLength = 20;
 
@@ -93,8 +94,7 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
      * Execute an AP Economy Roll and adjust state accordingly.
      */
     const rollEcon = () => {
-        const newAp = ( ApDecisionService.getInstance().rollEcon({...ap}, econTable) );
-        const adjustedEconTable = {...econTable};
+        const newAp = ( ApDecisionService.getInstance().rollEcon({...ap}, econTable, new DieHelper()) );
         const history = [ ...apHistory ];
 
         history.push({
@@ -102,29 +102,18 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
             purchasedTech: [...ap.purchasedTech]
         });
 
-        // If Economy points were added, those points are applied to the econ table 3 turns from now.
-        if (newAp.addEconOnRound.length > 0) {
-            newAp.addEconOnRound.forEach((val) => {
-                for (let i = val.round; i < gameLength; i++) {
-                    adjustedEconTable.rows[i].extraEcon += val.points;
-                }
-            })
-
-            newAp.addEconOnRound = [];
-        }
-
-        ApDecisionService.getInstance().rollFleet( newAp, launchTable, humanState );
+        ApDecisionService.getInstance().rollFleet( newAp, launchTable, humanState, new DieHelper() );
         newAp.econTurn = ap.econTurn + 1;
 
         setApHistory(history);
         setAdjustedAp(newAp);
-        setEconTable(adjustedEconTable);
+        setEconTable(econTable);
         dispatch({type: 'advance_ap_turn'});
     }
 
     const raiseDefenseFleet = () => {
         let nextAp  = Object.assign( new AP(ap.id, ap.difficultyIncrement), {...ap});
-        ApDecisionService.getInstance().releaseDefenseFleet(humanState, nextAp );
+        ApDecisionService.getInstance().releaseDefenseFleet(humanState, nextAp, new DieHelper() );
         const fleet = nextAp.currentFleets.pop();
         setApAndFleet({ap: nextAp, fleet: fleet});
         setAdjustedAp(nextAp);

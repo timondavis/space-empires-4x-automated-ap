@@ -1,7 +1,7 @@
 import React, {useEffect, useReducer} from "react";
-import {AP} from "../Model/AP";
-import {ApRoutingContext} from "../Context/ApRoutingContext";
-import {StorageService} from "../Service/StorageService";
+import {AP} from "../../Model/AP";
+import {ApRoutingContext} from "../../Context/ApRoutingContext";
+import {StorageService} from "../../Service/StorageService/StorageService";
 
 const defaultState = {
     apCollection : [new AP(0, 5, 'none')],

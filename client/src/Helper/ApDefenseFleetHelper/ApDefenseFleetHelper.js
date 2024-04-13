@@ -1,5 +1,5 @@
-import {ApFleet} from "../Model/ApFleet";
-import {ShipService} from "../Service/ShipService";
+import {ApFleet} from "../../Model/ApFleet";
+import {ShipService} from "../../Service/ShipService/ShipService";
 
 export class ApDefenseFleetHelper {
 

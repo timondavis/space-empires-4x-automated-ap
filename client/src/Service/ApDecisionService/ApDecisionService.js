@@ -1,15 +1,14 @@
-import {PendingEconAddition} from "../Model/PendingEconAddition";
-import {ApFleetHelper} from "../Helper/ApFleetHelper";
-import {ApAndHumanComparisonHelper} from "../Helper/ApAndHumanComparisonHelper";
-import {DieHelper} from "../Helper/DieHelper";
-import {EconRollResults} from "../Model/EconRollResults";
-import {ApDefenseFleetHelper} from "../Helper/ApDefenseFleetHelper";
-import {ApTechHelper} from "../Helper/ApTechHelper";
+import {PendingEconAddition} from "../../Model/PendingEconAddition";
+import {ApFleetHelper} from "../../Helper/ApFleetHelper/ApFleetHelper";
+import {ApAndHumanComparisonHelper} from "../../Helper/ApAndHumanComparisonHelper/ApAndHumanComparisonHelper";
+import {DieHelper} from "../../Helper/DieHelper/DieHelper";
+import {EconRollResults} from "../../Model/EconRollResults";
+import {ApDefenseFleetHelper} from "../../Helper/ApDefenseFleetHelper/ApDefenseFleetHelper";
+import {ApTechHelper} from "../../Helper/ApTechHelper/ApTechHelper";
 
 let _instance = null;
 
 const humanCompareHelper = new ApAndHumanComparisonHelper();
-const dieHelper = new DieHelper();
 
 export class ApDecisionService {
 
@@ -44,10 +43,11 @@ export class ApDecisionService {
      * Roll the AP Econ and return the adjusted model.
      * @param ap : AP
      * @param econRollTable : EconRollTable
+     * @param dieHelper : DieHelper
      *
      * @return AP
      */
-     rollEcon = ( ap, econRollTable ) => {
+     rollEcon = ( ap, econRollTable, dieHelper ) => {
 
          const econRow = econRollTable.rows[this.adjustedRowIndex(ap.econTurn)];
          const econRollResults = new EconRollResults();
@@ -70,7 +70,9 @@ export class ApDecisionService {
              pending.points = econRollResults.econ;
              pending.round = ap.econTurn + 3;
 
-             ap.addEconOnRound.push( pending );
+             for( let i = pending.round ; i < econRollTable.rows.length ; i++ ){
+                 econRollTable.rows[i].extraEcon += pending.points;
+             }
          }
 
          ap.fleet   += econRollResults.fleet * ap.difficultyIncrement;
@@ -85,8 +87,9 @@ export class ApDecisionService {
      * @param ap : AP
      * @param fleetLaunchTable : FleetLaunchTable
      * @param humanState : HumanState
+     * @param dieHelper : DieHelper
      */
-    rollFleet = (ap, fleetLaunchTable, humanState ) => {
+    rollFleet = (ap, fleetLaunchTable, humanState, dieHelper ) => {
         const fleetHelper = new ApFleetHelper();
         const fleetLaunchRange = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)];
         let roll = dieHelper.d10();
@@ -135,10 +138,10 @@ export class ApDecisionService {
      * Generate a Defense Fleet
      * @param humanState : HumanState
      * @param ap : AP
+     * @param dieHelper : DieHelper
      */
-    releaseDefenseFleet( humanState, ap ) {
+    releaseDefenseFleet( humanState, ap, dieHelper ) {
         const comparisonHelper = new ApAndHumanComparisonHelper();
-        const dieHelper = new DieHelper();
         const defenseHelper = new ApDefenseFleetHelper();
         const fleetHelper = new ApFleetHelper();
         const techHelper = new ApTechHelper();

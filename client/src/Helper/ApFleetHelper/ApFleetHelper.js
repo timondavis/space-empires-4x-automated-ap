@@ -1,10 +1,10 @@
-import {ApFleet} from "../Model/ApFleet";
-import {ApQuery} from "../Service/ApQuery";
-import {TechRequirement} from "../Model/TechReqiurement";
-import {DieRange} from "../Model/DieRange";
-import {ApAndHumanComparisonHelper} from "./ApAndHumanComparisonHelper";
-import {ShipService} from "../Service/ShipService";
-import {DieHelper} from "./DieHelper";
+import {ApFleet} from "../../Model/ApFleet";
+import {ApQuery} from "../../Service/ApQuery/ApQuery";
+import {TechRequirement} from "../../Model/TechReqiurement";
+import {DieRange} from "../../Model/DieRange";
+import {ApAndHumanComparisonHelper} from "../ApAndHumanComparisonHelper/ApAndHumanComparisonHelper";
+import {ShipService} from "../../Service/ShipService/ShipService";
+import {DieHelper} from "../DieHelper/DieHelper";
 
 const dieHelper = new DieHelper();
 

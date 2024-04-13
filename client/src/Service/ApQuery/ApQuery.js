@@ -1,7 +1,7 @@
-import {AppliedTech} from "../Model/AppliedTech";
-import {TechRequirement} from "../Model/TechReqiurement";
-import {TechService} from "./TechService";
-import {ApTechHelper} from "../Helper/ApTechHelper";
+import {AppliedTech} from "../../Model/AppliedTech";
+import {TechRequirement} from "../../Model/TechReqiurement";
+import {TechService} from "../TechService/TechService";
+import {ApTechHelper} from "../../Helper/ApTechHelper/ApTechHelper";
 
 let _instance = null;
 export class ApQuery {

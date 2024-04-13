@@ -1,4 +1,4 @@
-import {ShipList} from "../Model/ShipList";
+import {ShipList} from "../../Model/ShipList";
 
 let _instance = null;
 const shipList  = ShipList;

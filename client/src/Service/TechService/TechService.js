@@ -1,4 +1,4 @@
-import {TechList} from "../Model/TechList";
+import {TechList} from "../../Model/TechList";
 
 let _instance = null;
 const techList = TechList;
