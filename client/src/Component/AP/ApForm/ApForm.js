@@ -4,17 +4,26 @@ import {AP} from "../../../Model/AP";
 import {EconRollTable} from "../../../Model/EconRollTable"
 import {FleetLaunchTable} from "../../../Model/FleetLaunchTable";
 import {ApFormRow} from "../ApFormRow/ApFormRow";
-import {ApDecisionService} from "../../../Service/ApDecisionService";
+import {ApDecisionService} from "../../../Service/ApDecisionService/ApDecisionService";
 import {FleetModal} from "../../FleetModal/FleetModal";
 import {FleetModalContext} from "../../../Context/FleetModalContext";
-import {TechService} from "../../../Service/TechService";
+import {ApTabs} from "../ApTabs/ApTabs";
+import {ApRoutingContext} from "../../../Context/ApRoutingContext";
+import {DefeatApModal} from "../../DefeatApModal/DefeatApModal";
+import {DieHelper} from "../../../Helper/DieHelper/DieHelper";
+import {ApFleetHelper} from "../../../Helper/ApFleetHelper/ApFleetHelper";
+import {ApAndHumanComparisonHelper} from "../../../Helper/ApAndHumanComparisonHelper/ApAndHumanComparisonHelper";
+import {ApDefenseFleetHelper} from "../../../Helper/ApDefenseFleetHelper/ApDefenseFleetHelper";
+import {ApTechHelper} from "../../../Helper/ApTechHelper/ApTechHelper";
 
 const gameLength = 20;
 
 export function ApForm({humanState, ap, apUpdateCallback}) {
 
+    const {currentAp, dispatch} = useContext(ApRoutingContext);
+
     const launchTable = new FleetLaunchTable();
-    const {setApAndFleet} = useContext(FleetModalContext);
+    const {setApAndFleet, setDefeatAp} = useContext(FleetModalContext);
 
     const [apHistory, setApHistory] = useState([]);
     const [econTable, setEconTable] = useState(new EconRollTable());
@@ -89,8 +98,7 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
      * Execute an AP Economy Roll and adjust state accordingly.
      */
     const rollEcon = () => {
-        const newAp = ( ApDecisionService.getInstance().rollEcon({...ap}, econTable) );
-        const adjustedEconTable = {...econTable};
+        const newAp = ( ApDecisionService.getInstance().rollEcon({...ap}, econTable, new DieHelper()) );
         const history = [ ...apHistory ];
 
         history.push({
@@ -98,38 +106,61 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
             purchasedTech: [...ap.purchasedTech]
         });
 
-        // If Economy points were added, those points are applied to the econ table 3 turns from now.
-        if (newAp.addEconOnRound.length > 0) {
-            newAp.addEconOnRound.forEach((val) => {
-                for (let i = val.round; i < gameLength; i++) {
-                    adjustedEconTable.rows[i].extraEcon += val.points;
-                }
-            })
+        // Make a fleet roll, if appropriate
+        const fleetCreated = ApDecisionService.getInstance().rollFleet(
+            newAp,
+            launchTable,
+            humanState,
+            new DieHelper(),
+            new ApFleetHelper(),
+            new ApAndHumanComparisonHelper()
+        );
 
-            newAp.addEconOnRound = [];
+        // Check for movement upgrade, if new fleet roll was added
+        if ( fleetCreated ) {
+            ApDecisionService.getInstance().rollForMovementUpgrade(ap, new DieHelper());
         }
 
-        ApDecisionService.getInstance().rollFleet( newAp, launchTable, humanState );
+        // Advance Econ Turn for next AP iteration
         newAp.econTurn = ap.econTurn + 1;
 
+        // Update state
         setApHistory(history);
         setAdjustedAp(newAp);
-        setEconTable(adjustedEconTable);
+        setEconTable(econTable);
+        dispatch({type: 'advance_ap_turn'});
     }
 
-
     const raiseDefenseFleet = () => {
+        const comparisonHelper = new ApAndHumanComparisonHelper();
+        const defenseHelper = new ApDefenseFleetHelper();
+        const fleetHelper = new ApFleetHelper();
+        const techHelper = new ApTechHelper();
+
         let nextAp  = Object.assign( new AP(ap.id, ap.difficultyIncrement), {...ap});
-        ApDecisionService.getInstance().releaseDefenseFleet(humanState, nextAp );
+
+        ApDecisionService.getInstance().releaseDefenseFleet(
+            humanState, nextAp, new DieHelper(), comparisonHelper, defenseHelper, fleetHelper, techHelper );
         const fleet = nextAp.currentFleets.pop();
         setApAndFleet({ap: nextAp, fleet: fleet});
         setAdjustedAp(nextAp);
+    }
+
+    const hopToCurrent = () => {
+        dispatch({type: 'feature_ap', value: {ap: currentAp}});
+    }
+
+    const defeatAp = () => {
+        setDefeatAp(ap);
     }
 
     return(
         <div className={"ApForm"}>
             <div className={"container-fluid"}>
                 <div className={"row"}>
+                    <div className={"col-12"}>
+                        <ApTabs></ApTabs>
+                    </div>
                     <div className={"col-12"}>
                         <div className={"d-flex align-items-start align-items-center"}>
                             <img className="chit-image me-3 mt-3" alt={ap.color + " game chit"}
@@ -168,12 +199,22 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
 
             <div className={"row buttons"}>
                 <div className={"col-12"}>
-                    <button className="btn btn-primary m-1" onClick={() => rollEcon()}>Roll Econ</button>
-                    <button className="btn btn-secondary" onClick={() => raiseDefenseFleet()}>Raise Defense Fleet</button>
+                    <div className={"w-100 d-flex justify-content-end align-items-center"}>
+                        <button className="btn btn-danger m-1" onClick={() => defeatAp()}>Defeat AP</button>
+                        <button className="btn btn-secondary m-1 " onClick={() => raiseDefenseFleet()}>Raise Defense Fleet
+                        </button>
+
+                        {currentAp?.id === ap?.id ?
+                            (<button className="btn btn-primary m-1" onClick={() => rollEcon()}>Roll Econ</button>) :
+                            (<button className="btn btn-outline-primary m-1" onClick={() => hopToCurrent()}>Next AP &gt;</button>)
+                        }
+
+                    </div>
                 </div>
             </div>
 
             <FleetModal apId={ap.id}></FleetModal>
+            <DefeatApModal ap={ap}></DefeatApModal>
         </div>
     );
 }

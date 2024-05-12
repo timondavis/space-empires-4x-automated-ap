@@ -1,7 +1,7 @@
 import {ShowDiceRange} from "../../ShowDiceRange/ShowDiceRange";
 import "./ApFormRow.css"
 import {ApFormRowEntry} from "./ApFormRowEntry/ApFormRowEntry";
-import {TechService} from "../../../Service/TechService";
+import {TechService} from "../../../Service/TechService/TechService";
 import {TechRequirement} from "../../../Model/TechReqiurement";
 
 export function ApFormRow({ap,econRow, launchRow}) {

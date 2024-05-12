@@ -1,15 +1,16 @@
-import {PendingEconAddition} from "../Model/PendingEconAddition";
-import {ApFleetHelper} from "../Helper/ApFleetHelper";
-import {ApAndHumanComparisonHelper} from "../Helper/ApAndHumanComparisonHelper";
-import {DieHelper} from "../Helper/DieHelper";
-import {EconRollResults} from "../Model/EconRollResults";
-import {ApDefenseFleetHelper} from "../Helper/ApDefenseFleetHelper";
-import {ApTechHelper} from "../Helper/ApTechHelper";
+import {PendingEconAddition} from "../../Model/PendingEconAddition";
+import {ApFleetHelper} from "../../Helper/ApFleetHelper/ApFleetHelper";
+import {ApAndHumanComparisonHelper} from "../../Helper/ApAndHumanComparisonHelper/ApAndHumanComparisonHelper";
+import {DieHelper} from "../../Helper/DieHelper/DieHelper";
+import {EconRollResults} from "../../Model/EconRollResults";
+import {ApDefenseFleetHelper} from "../../Helper/ApDefenseFleetHelper/ApDefenseFleetHelper";
+import {ApTechHelper} from "../../Helper/ApTechHelper/ApTechHelper";
+import {DieRange} from "../../Model/DieRange";
+import {ApQuery} from "../ApQuery/ApQuery";
 
 let _instance = null;
 
 const humanCompareHelper = new ApAndHumanComparisonHelper();
-const dieHelper = new DieHelper();
 
 export class ApDecisionService {
 
@@ -44,10 +45,11 @@ export class ApDecisionService {
      * Roll the AP Econ and return the adjusted model.
      * @param ap : AP
      * @param econRollTable : EconRollTable
+     * @param dieHelper : DieHelper
      *
      * @return AP
      */
-     rollEcon = ( ap, econRollTable ) => {
+     rollEcon = ( ap, econRollTable, dieHelper ) => {
 
          const econRow = econRollTable.rows[this.adjustedRowIndex(ap.econTurn)];
          const econRollResults = new EconRollResults();
@@ -70,7 +72,9 @@ export class ApDecisionService {
              pending.points = econRollResults.econ;
              pending.round = ap.econTurn + 3;
 
-             ap.addEconOnRound.push( pending );
+             for( let i = pending.round ; i < econRollTable.rows.length ; i++ ){
+                 econRollTable.rows[i].extraEcon += pending.points;
+             }
          }
 
          ap.fleet   += econRollResults.fleet * ap.difficultyIncrement;
@@ -85,10 +89,19 @@ export class ApDecisionService {
      * @param ap : AP
      * @param fleetLaunchTable : FleetLaunchTable
      * @param humanState : HumanState
+     * @param dieHelper : DieHelper
+     * @param fleetHelper : ApFleetHelper
+     * @param humanCompareHelper : ApAndHumanComparisonHelper
+     *
+     * @return boolean // Return TRUE if fleet created, FALSE if not.
      */
-    rollFleet = (ap, fleetLaunchTable, humanState ) => {
-        const fleetHelper = new ApFleetHelper();
-        const fleetLaunchRange = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)];
+    rollFleet = (ap,
+                 fleetLaunchTable,
+                 humanState,
+                 dieHelper ,
+                 fleetHelper,
+                 humanCompareHelper ) => {
+        const fleetLaunchRange = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)]?.fleet;
         let roll = dieHelper.d10();
 
         // Reduce roll by 2 if ap has superior Fighters against human Point Defense & sufficient fleet size.
@@ -101,13 +114,27 @@ export class ApDecisionService {
             roll = Math.max(1, roll -2 );
         }
 
-        if ( !fleetLaunchRange?.min ) { return ap; }
+        if ( !fleetLaunchRange?.min ) { return false; }
 
         if ( dieHelper.isNumberInRange(roll, fleetLaunchRange) && ap.fleet >= 6) {
             fleetHelper.generateNewFleet( ap, humanState, humanCompareHelper, dieHelper );
+            return true;
         }
 
-        return ap;
+        return false;
+    }
+
+    /**
+     * Check for movement upgrade.  AP will consider this movement tech upgrade,specfically,
+     * whenever it makes a fleet roll.
+     * @param ap : AP
+     * @param dieHelper : DieHelper
+     */
+    rollForMovementUpgrade = (ap, dieHelper) => {
+
+        if (dieHelper.isNumberInRange(dieHelper.d10(), new DieRange(1,4))) {
+            ApQuery.getInstance().buyApTechUpgrade('move', ap);
+        }
     }
 
     /**
@@ -116,12 +143,12 @@ export class ApDecisionService {
      * @param fleetIndex : number
      * @param humanState : HumanState
      * @param ap : AP
+     * @param fleetHelper : ApFleetHelper
+     * @param techHelper : ApTechHelper
      *
      * @return {AP}
      */
-    releaseFleet = (fleetIndex, humanState, ap) => {
-        const fleetHelper = new ApFleetHelper();
-        const techHelper = new ApTechHelper();
+    releaseFleet = (fleetIndex, humanState, ap, fleetHelper, techHelper) => {
         const fleet = ap.currentFleets[fleetIndex];
         let updatedAp = techHelper.upgradeApTech( humanState, { ...ap } );
         updatedAp = fleetHelper.buyShips( fleet, humanState, updatedAp, { ...ap } );
@@ -135,13 +162,9 @@ export class ApDecisionService {
      * Generate a Defense Fleet
      * @param humanState : HumanState
      * @param ap : AP
+     * @param dieHelper : DieHelper
      */
-    releaseDefenseFleet( humanState, ap ) {
-        const comparisonHelper = new ApAndHumanComparisonHelper();
-        const dieHelper = new DieHelper();
-        const defenseHelper = new ApDefenseFleetHelper();
-        const fleetHelper = new ApFleetHelper();
-        const techHelper = new ApTechHelper();
+    releaseDefenseFleet( humanState, ap, dieHelper, comparisonHelper, defenseHelper, fleetHelper, techHelper ) {
 
         const fleet = defenseHelper.generateNewFleet(ap, humanState, comparisonHelper, dieHelper);
         techHelper.upgradeApTech(humanState, ap, true);

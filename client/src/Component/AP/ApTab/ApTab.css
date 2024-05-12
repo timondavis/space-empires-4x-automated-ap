@@ -1,0 +1,10 @@
+button.ap-tab {
+    background: transparent;
+    padding: 0;
+
+}
+
+button.ap-tab img {
+    height: 45px;
+    width: 45px;
+}

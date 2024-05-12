@@ -1,8 +1,10 @@
 import {useContext, useState} from "react";
-import {ApDecisionService} from "../../../Service/ApDecisionService";
+import {ApDecisionService} from "../../../Service/ApDecisionService/ApDecisionService";
 import {FleetModalContext} from "../../../Context/FleetModalContext";
 import {BsChevronBarExpand, BsChevronBarContract} from "react-icons/bs";
 import "./ApFleets.css";
+import {ApFleetHelper} from "../../../Helper/ApFleetHelper/ApFleetHelper";
+import {ApTechHelper} from "../../../Helper/ApTechHelper/ApTechHelper";
 
 
 export function ApFleets({humanState, ap, apUpdateCallback}) {
@@ -23,14 +25,16 @@ export function ApFleets({humanState, ap, apUpdateCallback}) {
      * @param fleetIndex : number
      */
     const releaseFleet = (fleet, humanState, ap, fleetIndex) => {
-        const adjustedAp = ApDecisionService.getInstance().releaseFleet( fleetIndex, humanState, { ...ap } );
+        const fleetHelper = new ApFleetHelper();
+        const techHelper = new ApTechHelper();
+        const adjustedAp = ApDecisionService.getInstance().releaseFleet( fleetIndex, humanState, { ...ap }, fleetHelper, techHelper );
         setApAndFleet({ap: adjustedAp, fleet: fleet});
         adjustedAp.currentFleets.splice(fleetIndex, 1);
         apUpdateCallback(adjustedAp);
     }
 
     return (
-        <div className={"container-fluid mt-4"}>
+        <div className={"ap-fleets container-fluid mt-4"}>
 
             <div className={"row"}>
                 <div className={"col-12 pointer d-inline-flex justify-content-start align-items-center"} onClick={toggleFolded}>
@@ -38,7 +42,7 @@ export function ApFleets({humanState, ap, apUpdateCallback}) {
                         <BsChevronBarExpand className={"pointer-icon"}></BsChevronBarExpand> :
                         <BsChevronBarContract className={"pointer-icon"}></BsChevronBarContract>
                     }
-                    <h3 className={'ms-2'}>Fleets</h3>
+                    <button className={'button-toggle'}><h3 className={'ms-2'}>Fleets</h3></button>
                 </div>
             </div>
 

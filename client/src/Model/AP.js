@@ -1,7 +1,7 @@
 import {AppliedTech} from "./AppliedTech";
 import {ApFleet} from "./ApFleet";
 import {PendingEconAddition} from "./PendingEconAddition";
-import {ApQuery} from "../Service/ApQuery";
+import {ApQuery} from "../Service/ApQuery/ApQuery";
 
 export class AP {
     id = 0;
