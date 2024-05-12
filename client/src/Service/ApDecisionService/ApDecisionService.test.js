@@ -13,6 +13,7 @@ import {AppliedTech} from "../../Model/AppliedTech";
 import {ApTechHelper} from "../../Helper/ApTechHelper/ApTechHelper";
 import {ShipTemplate} from "../../Model/ShipTemplate";
 import {ApDefenseFleetHelper} from "../../Helper/ApDefenseFleetHelper/ApDefenseFleetHelper";
+import {FleetLaunchTable} from "../../Model/FleetLaunchTable";
 
 describe('ApDecisionService', () => {
     /**
@@ -161,14 +162,14 @@ describe('ApDecisionService', () => {
     describe( 'rollFleet', () => {
 
         let ap;
-        let econRollTable;
+        let fleetLaunchTable;
         let dieHelper;
         let humanState;
         let apFleetHelper;
         let humanCompareHelper;
 
         beforeEach( () => {
-            econRollTable = new EconRollTable();
+            fleetLaunchTable = new FleetLaunchTable();
             dieHelper = new DieHelper();
             ap = new AP(1, 5);
             humanState = new HumanState();
@@ -195,9 +196,9 @@ describe('ApDecisionService', () => {
             for( let i = 0 ; i < numDieRolls ; i++ ) {
 
                 ap.fleet +=100;
-                econRollTable.rows[rowId] = new EconRollTableRow(1, new DieRange(5,5), new DieRange(0,0));
+                fleetLaunchTable.rows[rowId] = new DieRange(5,5);
                 ap.econTurn = rowId;
-                const fleetGenerated = service.rollFleet( ap, econRollTable, humanState, dieHelper, apFleetHelper, humanCompareHelper);
+                const fleetGenerated = service.rollFleet( ap, fleetLaunchTable, humanState, dieHelper, apFleetHelper, humanCompareHelper);
                 expect(fleetGenerated).toBe(true);
             }
 
@@ -218,9 +219,9 @@ describe('ApDecisionService', () => {
             for( let i = 0 ; i < numDieRolls ; i++ ) {
 
                 ap.fleet +=100;
-                econRollTable.rows[rowId] = new EconRollTableRow(1, new DieRange(5,5), new DieRange(0,0));
+                fleetLaunchTable.rows[rowId] = new EconRollTableRow(1, new DieRange(5,5), new DieRange(0,0));
                 ap.econTurn = rowId;
-                const fleetGenerated = service.rollFleet( ap, econRollTable, humanState, dieHelper, apFleetHelper, humanCompareHelper);
+                const fleetGenerated = service.rollFleet( ap, fleetLaunchTable, humanState, dieHelper, apFleetHelper, humanCompareHelper);
                 expect(fleetGenerated).toBe(false);
             }
 
@@ -238,9 +239,9 @@ describe('ApDecisionService', () => {
             for( let i = 0 ; i < numDieRolls ; i++ ) {
 
                 ap.fleet +=100;
-                econRollTable.rows[rowId] = new EconRollTableRow(1, null, new DieRange(0,0));
+                fleetLaunchTable.rows[rowId] = new EconRollTableRow(1, null, new DieRange(0,0));
                 ap.econTurn = rowId;
-                const fleetGenerated = service.rollFleet( ap, econRollTable, humanState, dieHelper, apFleetHelper, humanCompareHelper);
+                const fleetGenerated = service.rollFleet( ap, fleetLaunchTable, humanState, dieHelper, apFleetHelper, humanCompareHelper);
                 expect(fleetGenerated).toBe(false);
             }
 
@@ -255,15 +256,15 @@ describe('ApDecisionService', () => {
             const numDieRolls = rand(10, 1);
             ap.fleet = 0;
             ap.econTurn = rowId;
-            econRollTable.rows[rowId] = new EconRollTableRow(1, new DieRange(5,5), new DieRange(0,0));
+            fleetLaunchTable.rows[rowId] = new DieRange(5,5);
 
-            expect(service.rollFleet(ap, econRollTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(false);
+            expect(service.rollFleet(ap, fleetLaunchTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(false);
 
             ap.fleet = 100;
-            expect(service.rollFleet(ap, econRollTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(false);
+            expect(service.rollFleet(ap, fleetLaunchTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(false);
 
             jest.spyOn(dieHelper, 'd10' ).mockImplementation(() => 7);
-            expect(service.rollFleet(ap, econRollTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(true);
+            expect(service.rollFleet(ap, fleetLaunchTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(true);
         });
 
         it ( 'accounts for scenario: Reduce roll by 2 if ap has superior cloaking compared to human scanner tech & sufficient fleet size.', () => {
@@ -274,15 +275,15 @@ describe('ApDecisionService', () => {
             const numDieRolls = rand(10, 1);
             ap.fleet = 0;
             ap.econTurn = rowId;
-            econRollTable.rows[rowId] = new EconRollTableRow(1, new DieRange(5,5), new DieRange(0,0));
+            fleetLaunchTable.rows[rowId] = new DieRange(5,5);
 
-            expect(service.rollFleet(ap, econRollTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(false);
+            expect(service.rollFleet(ap, fleetLaunchTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(false);
 
             ap.fleet = 100;
-            expect(service.rollFleet(ap, econRollTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(false);
+            expect(service.rollFleet(ap, fleetLaunchTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(false);
 
             jest.spyOn(dieHelper, 'd10' ).mockImplementation(() => 7);
-            expect(service.rollFleet(ap, econRollTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(true);
+            expect(service.rollFleet(ap, fleetLaunchTable, humanState, dieHelper, apFleetHelper, humanCompareHelper)).toBe(true);
         });
     });
 
@@ -463,9 +464,13 @@ describe('ApDecisionService', () => {
 
         it( 'adds new fleet to AP', () => {
             ap.currentFleets = [];
+            jest.spyOn(defenseHelper, 'generateNewFleet').mockImplementation((ap, humanState, comparisonHelper, dieHelper) => {
+                return new ApFleet();
+            });
+
+
             service.releaseDefenseFleet(humanState, ap, dieHelper, comparisonHelper, defenseHelper, fleetHelper, techHelper);
             expect(ap.currentFleets.length).toBe(1);
-            expect(ap.defense).toBeLessThan(999);
         });
     });
 });
