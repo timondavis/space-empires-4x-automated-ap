@@ -3,14 +3,11 @@ import {ApFleetHelper} from "../../Helper/ApFleetHelper/ApFleetHelper";
 import {ApAndHumanComparisonHelper} from "../../Helper/ApAndHumanComparisonHelper/ApAndHumanComparisonHelper";
 import {DieHelper} from "../../Helper/DieHelper/DieHelper";
 import {EconRollResults} from "../../Model/EconRollResults";
-import {ApDefenseFleetHelper} from "../../Helper/ApDefenseFleetHelper/ApDefenseFleetHelper";
 import {ApTechHelper} from "../../Helper/ApTechHelper/ApTechHelper";
 import {DieRange} from "../../Model/DieRange";
 import {ApQuery} from "../ApQuery/ApQuery";
 
 let _instance = null;
-
-const humanCompareHelper = new ApAndHumanComparisonHelper();
 
 export class ApDecisionService {
 
@@ -101,7 +98,7 @@ export class ApDecisionService {
                  dieHelper ,
                  fleetHelper,
                  humanCompareHelper ) => {
-        const fleetLaunchRange = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)]?.fleet;
+        const fleetLaunchRange = fleetLaunchTable.rows[this.adjustedRowIndex(ap.econTurn)];
         let roll = dieHelper.d10();
 
         // Reduce roll by 2 if ap has superior Fighters against human Point Defense & sufficient fleet size.
