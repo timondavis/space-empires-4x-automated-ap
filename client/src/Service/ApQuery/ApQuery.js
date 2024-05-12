@@ -19,6 +19,15 @@ export class ApQuery {
     }
 
     /**
+     * Resets the ApQuery instancing.  Used for testing
+     * @returns {ApQuery}
+     */
+    static resetInstance() {
+        _instance = new ApQuery();
+        return _instance;
+    }
+
+    /**
      * Does the AP Have the required Tech
      *
      * @param requirement : TechRequirement

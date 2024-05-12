@@ -11,6 +11,10 @@ import {ApTabs} from "../ApTabs/ApTabs";
 import {ApRoutingContext} from "../../../Context/ApRoutingContext";
 import {DefeatApModal} from "../../DefeatApModal/DefeatApModal";
 import {DieHelper} from "../../../Helper/DieHelper/DieHelper";
+import {ApFleetHelper} from "../../../Helper/ApFleetHelper/ApFleetHelper";
+import {ApAndHumanComparisonHelper} from "../../../Helper/ApAndHumanComparisonHelper/ApAndHumanComparisonHelper";
+import {ApDefenseFleetHelper} from "../../../Helper/ApDefenseFleetHelper/ApDefenseFleetHelper";
+import {ApTechHelper} from "../../../Helper/ApTechHelper/ApTechHelper";
 
 const gameLength = 20;
 
@@ -102,9 +106,25 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
             purchasedTech: [...ap.purchasedTech]
         });
 
-        ApDecisionService.getInstance().rollFleet( newAp, launchTable, humanState, new DieHelper() );
+        // Make a fleet roll, if appropriate
+        const fleetCreated = ApDecisionService.getInstance().rollFleet(
+            newAp,
+            launchTable,
+            humanState,
+            new DieHelper(),
+            new ApFleetHelper(),
+            new ApAndHumanComparisonHelper()
+        );
+
+        // Check for movement upgrade, if new fleet roll was added
+        if ( fleetCreated ) {
+            ApDecisionService.getInstance().rollForMovementUpgrade(ap, new DieHelper());
+        }
+
+        // Advance Econ Turn for next AP iteration
         newAp.econTurn = ap.econTurn + 1;
 
+        // Update state
         setApHistory(history);
         setAdjustedAp(newAp);
         setEconTable(econTable);
@@ -112,8 +132,15 @@ export function ApForm({humanState, ap, apUpdateCallback}) {
     }
 
     const raiseDefenseFleet = () => {
+        const comparisonHelper = new ApAndHumanComparisonHelper();
+        const defenseHelper = new ApDefenseFleetHelper();
+        const fleetHelper = new ApFleetHelper();
+        const techHelper = new ApTechHelper();
+
         let nextAp  = Object.assign( new AP(ap.id, ap.difficultyIncrement), {...ap});
-        ApDecisionService.getInstance().releaseDefenseFleet(humanState, nextAp, new DieHelper() );
+
+        ApDecisionService.getInstance().releaseDefenseFleet(
+            humanState, nextAp, new DieHelper(), comparisonHelper, defenseHelper, fleetHelper, techHelper );
         const fleet = nextAp.currentFleets.pop();
         setApAndFleet({ap: nextAp, fleet: fleet});
         setAdjustedAp(nextAp);

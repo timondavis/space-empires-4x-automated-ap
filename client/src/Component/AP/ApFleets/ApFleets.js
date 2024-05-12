@@ -3,6 +3,8 @@ import {ApDecisionService} from "../../../Service/ApDecisionService/ApDecisionSe
 import {FleetModalContext} from "../../../Context/FleetModalContext";
 import {BsChevronBarExpand, BsChevronBarContract} from "react-icons/bs";
 import "./ApFleets.css";
+import {ApFleetHelper} from "../../../Helper/ApFleetHelper/ApFleetHelper";
+import {ApTechHelper} from "../../../Helper/ApTechHelper/ApTechHelper";
 
 
 export function ApFleets({humanState, ap, apUpdateCallback}) {
@@ -23,7 +25,9 @@ export function ApFleets({humanState, ap, apUpdateCallback}) {
      * @param fleetIndex : number
      */
     const releaseFleet = (fleet, humanState, ap, fleetIndex) => {
-        const adjustedAp = ApDecisionService.getInstance().releaseFleet( fleetIndex, humanState, { ...ap } );
+        const fleetHelper = new ApFleetHelper();
+        const techHelper = new ApTechHelper();
+        const adjustedAp = ApDecisionService.getInstance().releaseFleet( fleetIndex, humanState, { ...ap }, fleetHelper, techHelper );
         setApAndFleet({ap: adjustedAp, fleet: fleet});
         adjustedAp.currentFleets.splice(fleetIndex, 1);
         apUpdateCallback(adjustedAp);

@@ -26,17 +26,6 @@ export class ApFleetHelper {
         fleet.isRaider = (humanCompareHelper.isHumanScannersInferiorToApCloaking(ap, humanState) && fleet.cp >= 12);
 
         ap.currentFleets.push(fleet);
-
-        const currentLevel = ApQuery.getInstance().getApTechLevel('move', ap);
-        const newLevel     = currentLevel + 1;
-        const key  = new TechRequirement();
-
-        // 2 in 5 chance that move tech is upgraded on fleet launch.
-        key.class = 'move';
-        key.level = newLevel;
-        if (dieHelper.isNumberInRange(dieHelper.d10(), new DieRange(1,4))) {
-            ApQuery.getInstance().buyApTechUpgrade('move', ap);
-        }
     }
 
     /**
